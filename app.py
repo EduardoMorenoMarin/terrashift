@@ -11,6 +11,8 @@ from core.dashboard_copy import display_temperature_data
 from core.dashboard_charts import temperature_figure, comparison_temperature_figure, warming_rate_figure
 from core.country_comparison import (available_countries, country_colors, prepare_comparison,
                                      comparison_table, interpret_comparison)
+from core.map_data import load_map_data
+from core.map_charts import country_trend_figure
 
 ROOT = Path(__file__).resolve().parent
 LOGGER = logging.getLogger(__name__)
@@ -22,6 +24,32 @@ st.markdown("""<style>
 border-radius: 12px; padding: 1rem; height: 100%;}
 [data-testid="stMetricValue"] {font-size: clamp(1.2rem, 2vw, 1.8rem);}
 </style>""", unsafe_allow_html=True)
+
+
+def render_map(country, start, end, registry_path):
+    st.subheader(f"South America · temperature trends · {start}–{end}")
+    st.caption("Colors represent trends in country-level average temperatures, not within-country spatial variation. Each country has one estimate; colors do not indicate statistical significance.")
+    try:
+        table, boundaries = load_map_data(start, end, mapping_path=registry_path,
+                                          raw_directory=ROOT / "data/raw")
+    except (OSError, ValueError, KeyError):
+        LOGGER.exception("Unable to prepare the South America map")
+        st.info("The map is temporarily unavailable. Country temperature details remain available below.")
+        return
+    selected_iso3 = table.loc[table.Country.eq(country), "ISO-3"].iloc[0]
+    st.plotly_chart(country_trend_figure(table, boundaries, selected_iso3),
+                    width="stretch", key="country_trend_map", on_select="ignore",
+                    config={"displaylogo": False, "scrollZoom": False})
+    st.caption(f"Hover over a country for its trend and period; use the Country to explore selector in the sidebar to see details below. The dark outline marks {country}. Zoom with the map controls and drag to pan.")
+    st.caption("Boundaries: [Natural Earth](https://www.naturalearthdata.com/), 1:110m Admin 0 countries, v5.1.2 · [Public domain](https://www.naturalearthdata.com/about/terms-of-use/). Display boundaries may differ from the Giovanni selections used to calculate country averages.")
+    missing = table["Trend (°C/decade)"].isna()
+    if missing.any():
+        st.info("Gray countries have unavailable trends: " + ", ".join(table.loc[missing, "Country"]) + ". At least three complete, consecutive years are needed; source data may also be unavailable.")
+    if end - start + 1 < 10:
+        st.warning("Short periods can give sensitive trend estimates. Try a longer period for a broader view.")
+    with st.expander("Map estimates & availability"):
+        st.dataframe(table.drop(columns=["ISO-3"]), hide_index=True,
+                     column_config={"Trend (°C/decade)": st.column_config.NumberColumn(format="%.4f")})
 
 
 def render_explore(dataset, country, start, end, frequency, show_trend, color):
@@ -261,7 +289,7 @@ def main():
         frequency = st.radio("Temperature view", ["Annual", "Monthly"], key="frequency")
         show_trend = st.toggle("Show trend line in Explore", value=True,
                                disabled=frequency == "Monthly", key="show_trend")
-        st.caption("Time period and temperature view apply to both Explore and Compare. Trends use annual averages.")
+        st.caption("Time period applies to the map, Explore and Compare. Temperature view applies to the temperature charts. Trends use annual averages.")
         st.divider()
         st.markdown("**NASA MERRA-2**  \n2-meter air temperature  \nMonthly data · 2000–2025")
     st.divider()
@@ -270,6 +298,7 @@ def main():
         st.stop()
     explore, compare, methodology = st.tabs(["Explore", "Compare", "Methodology"])
     with explore:
+        render_map(country, start, end, registry_path)
         render_explore(dataset, country, start, end, frequency, show_trend, colors[country])
     with compare:
         render_compare(selected, start, end, frequency, colors)

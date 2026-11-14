@@ -18,7 +18,8 @@
           "evidence": "Candidate only: filename suffix _ARG; user reports one download per country, but has not confirmed this filename label or shape-to-country mapping."
         }
       ],
-      "filename_suffix": "ARG"
+      "filename_suffix": "ARG",
+      "iso3": "ARG"
     },
     {
       "country": "Bolivia",
@@ -34,7 +35,8 @@
           "evidence": "Candidate only: filename suffix _BOL; user reports one download per country, but has not confirmed this filename label or shape-to-country mapping."
         }
       ],
-      "filename_suffix": "BOL"
+      "filename_suffix": "BOL",
+      "iso3": "BOL"
     },
     {
       "country": "Brazil",
@@ -50,7 +52,8 @@
           "evidence": "Candidate only: filename suffix _BR; user reports one download per country, but has not confirmed this filename label or shape-to-country mapping."
         }
       ],
-      "filename_suffix": "BR"
+      "filename_suffix": "BR",
+      "iso3": "BRA"
     },
     {
       "country": "Chile",
@@ -66,7 +69,8 @@
           "evidence": "Candidate only: filename suffix _CH; user reports one download per country, but has not confirmed this filename label or shape-to-country mapping."
         }
       ],
-      "filename_suffix": "CH"
+      "filename_suffix": "CH",
+      "iso3": "CHL"
     },
     {
       "country": "Colombia",
@@ -82,7 +86,8 @@
           "evidence": "Candidate only: filename suffix _COL; user reports one download per country, but has not confirmed this filename label or shape-to-country mapping."
         }
       ],
-      "filename_suffix": "COL"
+      "filename_suffix": "COL",
+      "iso3": "COL"
     },
     {
       "country": "Ecuador",
@@ -98,7 +103,8 @@
           "evidence": "Candidate only: filename suffix _ECU; user reports one download per country, but has not confirmed this filename label or shape-to-country mapping."
         }
       ],
-      "filename_suffix": "ECU"
+      "filename_suffix": "ECU",
+      "iso3": "ECU"
     },
     {
       "country": "Guyana",
@@ -114,7 +120,8 @@
           "evidence": "Candidate only: filename suffix _GUY; user reports one download per country, but has not confirmed this filename label or shape-to-country mapping."
         }
       ],
-      "filename_suffix": "GUY"
+      "filename_suffix": "GUY",
+      "iso3": "GUY"
     },
     {
       "country": "Paraguay",
@@ -130,7 +137,8 @@
           "evidence": "Candidate only: filename suffix _PAR; user reports one download per country, but has not confirmed this filename label or shape-to-country mapping."
         }
       ],
-      "filename_suffix": "PAR"
+      "filename_suffix": "PAR",
+      "iso3": "PRY"
     },
     {
       "country": "Peru",
@@ -146,7 +154,8 @@
           "evidence": "Existing Peru provenance plus exact SHA-256 match to original file; current filename has changed to _PER.csv."
         }
       ],
-      "filename_suffix": "PER"
+      "filename_suffix": "PER",
+      "iso3": "PER"
     },
     {
       "country": "Suriname",
@@ -162,7 +171,8 @@
           "evidence": "Candidate only: filename suffix _SURI; user reports one download per country, but has not confirmed this filename label or shape-to-country mapping."
         }
       ],
-      "filename_suffix": "SURI"
+      "filename_suffix": "SURI",
+      "iso3": "SUR"
     },
     {
       "country": "Uruguay",
@@ -178,7 +188,8 @@
           "evidence": "Candidate only: filename suffix _URU; user reports one download per country, but has not confirmed this filename label or shape-to-country mapping."
         }
       ],
-      "filename_suffix": "URU"
+      "filename_suffix": "URU",
+      "iso3": "URY"
     },
     {
       "country": "Venezuela",
@@ -194,7 +205,8 @@
           "evidence": "Candidate only: filename suffix _VEN; user reports one download per country, but has not confirmed this filename label or shape-to-country mapping."
         }
       ],
-      "filename_suffix": "VEN"
+      "filename_suffix": "VEN",
+      "iso3": "VEN"
     }
   ]
 }

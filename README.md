@@ -36,7 +36,9 @@ each selected country through the country registry, validating the file checksum
 and Giovanni shape, without depending on historical filenames. Phase 5B adds
 interactive country selection, temperature comparisons and individual warming-rate
 comparisons. Phase 5B.1 refines public copy, table labels and scientific
-explanations without changing data or calculations. Maps remain unimplemented.
+explanations without changing data or calculations. Phase 5C adds an interactive
+South America trend map with bundled, attributed Natural Earth boundaries,
+explicit ISO-3 joins, shared year controls and a synchronized country selector.
 No deployment, machine learning, chatbot, or
 AI-generated explanations are implemented. Interpretation uses deterministic
 text based on the computed statistics. Further phases await approval.
@@ -86,7 +88,10 @@ The dashboard uses three tabs:
 
 - **Explore:** select one of the 12 registered countries for detailed annual
   inference, diagnostics, temperature visualization and processed-data download.
-  The default is Peru; select a different country in the sidebar.
+  The default is Peru; select a different country in the sidebar. The map above
+  the details shows annual temperature trends in °C/decade across all 12 countries,
+  with a diverging scale centered on zero, country/period hover details and a dark
+  outline around the selected country. Drag to pan and use the map zoom controls.
 - **Compare:** select **2–5 distinct countries** in the sidebar. Interactive
   temperature lines show annual or monthly values. Horizontal warming-rate bars
   show the annual OLS slope with individual HAC-adjusted 95% intervals and
@@ -103,6 +108,31 @@ does not add trend lines to monthly or comparison temperature charts. Short
 periods retain temperature data while unavailable slopes and significance are
 marked explicitly; countries lacking estimable slopes are omitted from the
 rate bars and retained in the comparison table.
+
+The map always uses annual trend estimates, including when temperature charts
+show monthly values. Colors describe country-level averages, not within-country
+spatial variation or statistical significance. Gray means unavailable rather
+than zero. The availability table retains every country and explains missing
+estimates. Hover and table labels distinguish the selected period from the
+actual fitted years when incomplete endpoint years are excluded. Short records
+show a caution; fewer than three complete consecutive years cannot yield a trend.
+
+`core/map_data.py` loads each country through the existing validated loader and
+calls `prepare_period`; it introduces no statistical calculation. Geographic
+validation requires all 12 registry entries to match exactly one polygon feature
+by ISO-3. The explicit `iso3` field is independent of legacy filename suffixes.
+`core/map_charts.py` renders a Plotly `Choroplethmap` with a symmetric color range
+and a white background, requiring no tile service, token, or runtime boundary
+download. The boundary subset is only 22 KB. Source, version, public-domain terms,
+checksums and extraction details are in [the geography attribution](data/geography/README.md).
+Display boundaries are generalized and differ from the original Giovanni
+extraction boundaries; they do not redefine the NASA country averages.
+
+Country clicks do not change Explore. Streamlit exposes selection events rather
+than a general Plotly click callback. Reliable polygon selection has not been
+verified across the supported versions, so the existing **Country to explore** selector controls both the map
+outline and Explore details. This uses no additional dependency. See the
+[implementation and interaction notes](docs/phase_5c_map.md).
 
 Country options and file resolution come from the registry, without separate
 country-to-file lists. Tests exercise the actual repository data and a temporary
@@ -152,7 +182,7 @@ Deployment has not been performed. When deployment is explicitly authorized:
 
 1. Include `app.py`, `core/`, `requirements.txt`, `.streamlit/config.toml`,
    `metadata/country_mapping.json`, `metadata/dataset_provenance.json`, and the
-   required CSVs named in the country registry in the GitHub repository. The
+   `data/geography/` and required CSVs named in the country registry in the GitHub repository. The
    newly suffixed raw files still need to be explicitly allowed by `.gitignore`
    and included in a future authorized commit.
 2. Connect that repository and branch in Streamlit Community Cloud and set
@@ -367,8 +397,8 @@ AI-generated explanations are implemented.
 Phase 2 tests are available in `tests/test_data.py`. Phase 3 synthetic and NASA
 pipeline tests are in `tests/test_trend_analysis.py`. Dashboard helper and
 Streamlit interaction tests are in `tests/test_dashboard.py`. Validation
-completed with **145 tests passing**, and both `scripts/validate_data.py` and
-`scripts/analyze_trends.py` executed successfully. The raw CSV SHA-256 still
+completed with **173 tests passing**, and all three scripts—`scripts/validate_data.py`,
+`scripts/analyze_trends.py`, and `scripts/validate_regions.py`—executed successfully. The raw CSV SHA-256 still
 matches the provenance record. Tests include full-period reference statistics,
 period filtering and recalculation, short and invalid ranges, incomplete years,
 CSV exports, chart semantics, interpretation and Streamlit runtime interactions.
@@ -385,6 +415,10 @@ tabs, tables, chart specifications, help text and collapsed expanders, including
 multiple countries, date ranges, unavailable estimates and error states.
 Internal provenance status values stay in metadata and never appear in the
 rendered interface. Public labels are separate from the unchanged CSV schema.
+Phase 5C tests in `tests/test_map.py` cover all 12 ISO-3 mappings and geographic
+joins, real and synthetic map values, date filtering, missing and insufficient
+data, Plotly construction and map/Explore synchronization. Browser interactions
+remain a manual review item; see [the Phase 5C notes](docs/phase_5c_map.md).
 `tests/test_app_imports.py` also imports the real application in a fresh Python
 process with an isolated bytecode cache, verifying chart module paths, imported
 function identities and call signatures. Unresolved application imports fail
