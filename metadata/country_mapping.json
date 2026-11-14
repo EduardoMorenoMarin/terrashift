@@ -1,0 +1,200 @@
+{
+  "schema_version": 1,
+  "description": "Explicit country registry. All 12 filename-to-country associations are user_confirmed following the user's clarification of individual Giovanni country selections and manual filename labels. Original shapes, checksums and geographic limitations are preserved.",
+  "source_report": "User confirms downloading each of the 12 countries individually from NASA Giovanni and manually renaming the datasets with the corresponding country suffixes.",
+  "geographic_limitation": "No export independently names its country. No coordinates or spatial averaging details are inferred. Existing dataset_provenance.json is preserved unchanged.",
+  "countries": [
+    {
+      "country": "Argentina",
+      "filename": "g4.areaAvgTimeSeries.M2TMNXSLV_5_12_4_T2M.20000101-20251231.180W_90S_180E_90N_ARG.csv",
+      "sha256": "732982f68dec7ade2adf94af775e02adf51df39fced37f6d274b4ff0c595ef5d",
+      "shape_identifier": "state_dept_countries_2017/shp_9",
+      "status": "user_confirmed",
+      "evidence": "User explicitly confirms personally selecting Argentina individually in NASA Giovanni and manually assigning the _ARG.csv filename suffix to that country. This is user-confirmed selection provenance, not independent geographic verification.",
+      "csv_independently_verifies_country_identity": false,
+      "provenance_history": [
+        {
+          "status": "pending_confirmation",
+          "evidence": "Candidate only: filename suffix _ARG; user reports one download per country, but has not confirmed this filename label or shape-to-country mapping."
+        }
+      ],
+      "filename_suffix": "ARG"
+    },
+    {
+      "country": "Bolivia",
+      "filename": "g4.areaAvgTimeSeries.M2TMNXSLV_5_12_4_T2M.20000101-20251231.180W_90S_180E_90N_BOL.csv",
+      "sha256": "f092941659ac9bafe77dc735cf73fce793fdc96b03e6543a6683acfe3e56b273",
+      "shape_identifier": "state_dept_countries_2017/shp_31",
+      "status": "user_confirmed",
+      "evidence": "User explicitly confirms personally selecting Bolivia individually in NASA Giovanni and manually assigning the _BOL.csv filename suffix to that country. This is user-confirmed selection provenance, not independent geographic verification.",
+      "csv_independently_verifies_country_identity": false,
+      "provenance_history": [
+        {
+          "status": "pending_confirmation",
+          "evidence": "Candidate only: filename suffix _BOL; user reports one download per country, but has not confirmed this filename label or shape-to-country mapping."
+        }
+      ],
+      "filename_suffix": "BOL"
+    },
+    {
+      "country": "Brazil",
+      "filename": "g4.areaAvgTimeSeries.M2TMNXSLV_5_12_4_T2M.20000101-20251231.180W_90S_180E_90N_BR.csv",
+      "sha256": "2783a67850c1612d0dd6f6c18ff9fb3440164361c36d62a0035756e59b6d96fe",
+      "shape_identifier": "state_dept_countries_2017/shp_32",
+      "status": "user_confirmed",
+      "evidence": "User explicitly confirms personally selecting Brazil individually in NASA Giovanni and manually assigning the _BR.csv filename suffix to that country. This is user-confirmed selection provenance, not independent geographic verification.",
+      "csv_independently_verifies_country_identity": false,
+      "provenance_history": [
+        {
+          "status": "pending_confirmation",
+          "evidence": "Candidate only: filename suffix _BR; user reports one download per country, but has not confirmed this filename label or shape-to-country mapping."
+        }
+      ],
+      "filename_suffix": "BR"
+    },
+    {
+      "country": "Chile",
+      "filename": "g4.areaAvgTimeSeries.M2TMNXSLV_5_12_4_T2M.20000101-20251231.180W_90S_180E_90N_CH.csv",
+      "sha256": "00485000fdf3b58388b9d9eb1cf3c1b22cc70b0329398514950a0d5e12fae821",
+      "shape_identifier": "state_dept_countries_2017/shp_42",
+      "status": "user_confirmed",
+      "evidence": "User explicitly confirms personally selecting Chile individually in NASA Giovanni and manually assigning the _CH.csv filename suffix to that country. This is user-confirmed selection provenance, not independent geographic verification.",
+      "csv_independently_verifies_country_identity": false,
+      "provenance_history": [
+        {
+          "status": "pending_confirmation",
+          "evidence": "Candidate only: filename suffix _CH; user reports one download per country, but has not confirmed this filename label or shape-to-country mapping."
+        }
+      ],
+      "filename_suffix": "CH"
+    },
+    {
+      "country": "Colombia",
+      "filename": "g4.areaAvgTimeSeries.M2TMNXSLV_5_12_4_T2M.20000101-20251231.180W_90S_180E_90N_COL.csv",
+      "sha256": "99a3ca7ccff959c9a51ae5e0d8710f15d77494b1e5e364fd67a293297cb5992d",
+      "shape_identifier": "state_dept_countries_2017/shp_49",
+      "status": "user_confirmed",
+      "evidence": "User explicitly confirms personally selecting Colombia individually in NASA Giovanni and manually assigning the _COL.csv filename suffix to that country. This is user-confirmed selection provenance, not independent geographic verification.",
+      "csv_independently_verifies_country_identity": false,
+      "provenance_history": [
+        {
+          "status": "pending_confirmation",
+          "evidence": "Candidate only: filename suffix _COL; user reports one download per country, but has not confirmed this filename label or shape-to-country mapping."
+        }
+      ],
+      "filename_suffix": "COL"
+    },
+    {
+      "country": "Ecuador",
+      "filename": "g4.areaAvgTimeSeries.M2TMNXSLV_5_12_4_T2M.20000101-20251231.180W_90S_180E_90N_ECU.csv",
+      "sha256": "8ba2e5730bfa208abe6a80d1a92c43dd237d6bc74f4b752e69b49652fee57e24",
+      "shape_identifier": "state_dept_countries_2017/shp_65",
+      "status": "user_confirmed",
+      "evidence": "User explicitly confirms personally selecting Ecuador individually in NASA Giovanni and manually assigning the _ECU.csv filename suffix to that country. This is user-confirmed selection provenance, not independent geographic verification.",
+      "csv_independently_verifies_country_identity": false,
+      "provenance_history": [
+        {
+          "status": "pending_confirmation",
+          "evidence": "Candidate only: filename suffix _ECU; user reports one download per country, but has not confirmed this filename label or shape-to-country mapping."
+        }
+      ],
+      "filename_suffix": "ECU"
+    },
+    {
+      "country": "Guyana",
+      "filename": "g4.areaAvgTimeSeries.M2TMNXSLV_5_12_4_T2M.20000101-20251231.180W_90S_180E_90N_GUY.csv",
+      "sha256": "6358370397d84024d1fb8fd881fca02bccea26f57d22aa938732a3ec93b4d962",
+      "shape_identifier": "state_dept_countries_2017/shp_94",
+      "status": "user_confirmed",
+      "evidence": "User explicitly confirms personally selecting Guyana individually in NASA Giovanni and manually assigning the _GUY.csv filename suffix to that country. This is user-confirmed selection provenance, not independent geographic verification.",
+      "csv_independently_verifies_country_identity": false,
+      "provenance_history": [
+        {
+          "status": "pending_confirmation",
+          "evidence": "Candidate only: filename suffix _GUY; user reports one download per country, but has not confirmed this filename label or shape-to-country mapping."
+        }
+      ],
+      "filename_suffix": "GUY"
+    },
+    {
+      "country": "Paraguay",
+      "filename": "g4.areaAvgTimeSeries.M2TMNXSLV_5_12_4_T2M.20000101-20251231.180W_90S_180E_90N_PAR.csv",
+      "sha256": "bb7f75fdcd5aea85b1ef281f9a9f39ec2155f5db468fca1dda4887cf6c6f1f9b",
+      "shape_identifier": "state_dept_countries_2017/shp_182",
+      "status": "user_confirmed",
+      "evidence": "User explicitly confirms personally selecting Paraguay individually in NASA Giovanni and manually assigning the _PAR.csv filename suffix to that country. This is user-confirmed selection provenance, not independent geographic verification.",
+      "csv_independently_verifies_country_identity": false,
+      "provenance_history": [
+        {
+          "status": "pending_confirmation",
+          "evidence": "Candidate only: filename suffix _PAR; user reports one download per country, but has not confirmed this filename label or shape-to-country mapping."
+        }
+      ],
+      "filename_suffix": "PAR"
+    },
+    {
+      "country": "Peru",
+      "filename": "g4.areaAvgTimeSeries.M2TMNXSLV_5_12_4_T2M.20000101-20251231.180W_90S_180E_90N_PER.csv",
+      "sha256": "2c672ae3a03e3d815e2a7d558719beeabcd98d6c60b7a66060a6ce8e50b048cb",
+      "shape_identifier": "state_dept_countries_2017/shp_174",
+      "status": "user_confirmed",
+      "evidence": "User explicitly confirms personally selecting Peru individually in NASA Giovanni and manually assigning the _PER.csv filename suffix to that country. This is user-confirmed selection provenance, not independent geographic verification.",
+      "csv_independently_verifies_country_identity": false,
+      "provenance_history": [
+        {
+          "status": "user_reported",
+          "evidence": "Existing Peru provenance plus exact SHA-256 match to original file; current filename has changed to _PER.csv."
+        }
+      ],
+      "filename_suffix": "PER"
+    },
+    {
+      "country": "Suriname",
+      "filename": "g4.areaAvgTimeSeries.M2TMNXSLV_5_12_4_T2M.20000101-20251231.180W_90S_180E_90N_SURI.csv",
+      "sha256": "17ec8230bebf0898cd11b3611f6ab817f3ea8a8500e44e86c246404e1c1aa70f",
+      "shape_identifier": "state_dept_countries_2017/shp_205",
+      "status": "user_confirmed",
+      "evidence": "User explicitly confirms personally selecting Suriname individually in NASA Giovanni and manually assigning the _SURI.csv filename suffix to that country. This is user-confirmed selection provenance, not independent geographic verification.",
+      "csv_independently_verifies_country_identity": false,
+      "provenance_history": [
+        {
+          "status": "pending_confirmation",
+          "evidence": "Candidate only: filename suffix _SURI; user reports one download per country, but has not confirmed this filename label or shape-to-country mapping."
+        }
+      ],
+      "filename_suffix": "SURI"
+    },
+    {
+      "country": "Uruguay",
+      "filename": "g4.areaAvgTimeSeries.M2TMNXSLV_5_12_4_T2M.20000101-20251231.180W_90S_180E_90N_URU.csv",
+      "sha256": "dd18da299af4419bec9c1ade483f20524dd5de5c5a766f863e5d37834c69e36d",
+      "shape_identifier": "state_dept_countries_2017/shp_231",
+      "status": "user_confirmed",
+      "evidence": "User explicitly confirms personally selecting Uruguay individually in NASA Giovanni and manually assigning the _URU.csv filename suffix to that country. This is user-confirmed selection provenance, not independent geographic verification.",
+      "csv_independently_verifies_country_identity": false,
+      "provenance_history": [
+        {
+          "status": "pending_confirmation",
+          "evidence": "Candidate only: filename suffix _URU; user reports one download per country, but has not confirmed this filename label or shape-to-country mapping."
+        }
+      ],
+      "filename_suffix": "URU"
+    },
+    {
+      "country": "Venezuela",
+      "filename": "g4.areaAvgTimeSeries.M2TMNXSLV_5_12_4_T2M.20000101-20251231.180W_90S_180E_90N_VEN.csv",
+      "sha256": "658f34973ce7945000054ad26081fd3cc953a654ebe0fd34fc19bee43be84d72",
+      "shape_identifier": "state_dept_countries_2017/shp_236",
+      "status": "user_confirmed",
+      "evidence": "User explicitly confirms personally selecting Venezuela individually in NASA Giovanni and manually assigning the _VEN.csv filename suffix to that country. This is user-confirmed selection provenance, not independent geographic verification.",
+      "csv_independently_verifies_country_identity": false,
+      "provenance_history": [
+        {
+          "status": "pending_confirmation",
+          "evidence": "Candidate only: filename suffix _VEN; user reports one download per country, but has not confirmed this filename label or shape-to-country mapping."
+        }
+      ],
+      "filename_suffix": "VEN"
+    }
+  ]
+}

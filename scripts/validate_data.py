@@ -6,7 +6,7 @@ import sys
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from core.data_loader import load_data
+from core.data_loader import load_data, resolve_original_source
 from core.data_cleaning import clean_monthly, annual_mean_temperatures, annual_trend_ready
 
 
@@ -15,7 +15,7 @@ def main():
     parser.add_argument("path", nargs="?", type=Path)
     args = parser.parse_args()
     try:
-        loaded = load_data(args.path)
+        loaded = load_data(args.path if args.path is not None else resolve_original_source())
         monthly = clean_monthly(loaded.observations)
         annual = annual_mean_temperatures(monthly)
         complete = annual_trend_ready(annual)

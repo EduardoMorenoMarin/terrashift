@@ -1,6 +1,7 @@
 """Print annual temperature trends and conditional uncertainty; no charts."""
 
 import argparse
+import hashlib
 import json
 from pathlib import Path
 import sys
@@ -8,9 +9,10 @@ import sys
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from core.data_loader import load_data
+from core.data_loader import load_data, resolve_original_source
 from core.data_cleaning import clean_monthly, annual_mean_temperatures, annual_trend_ready
 from core.trend_analysis import analyze_annual_trend
+from core.region_data import geographic_identifiers, read_country_mapping
 
 
 def _format_optional(value, precision=4):
@@ -29,22 +31,31 @@ def _print_inference(label, inference):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("path", nargs="?", type=Path, help="NASA Giovanni CSV; otherwise discover data/raw/*.csv")
+    parser.add_argument("path", nargs="?", type=Path, help="NASA Giovanni CSV; otherwise resolve the original Peru checksum")
     parser.add_argument("--hac-lags", type=int, default=None, help="Override automatic Newey–West bandwidth")
     args = parser.parse_args()
     try:
         provenance = json.loads((ROOT / "metadata/dataset_provenance.json").read_text())
-        loaded = load_data(args.path)
+        loaded = load_data(args.path if args.path is not None else resolve_original_source())
         monthly = clean_monthly(loaded.observations)
         annual = annual_mean_temperatures(monthly)
         complete = annual_trend_ready(annual)
         result = analyze_annual_trend(complete, hac_lags=args.hac_lags)
+        registry = read_country_mapping()
+        checksum = hashlib.sha256(loaded.source.read_bytes()).hexdigest()
     except (ValueError, OSError) as exc:
         parser.exit(1, f"Analysis failed: {exc}\n")
     print(f"Source: {provenance['source']}; {provenance['collection']} v{provenance['version']}; {provenance['variable']}")
     print(f"CSV: {loaded.source.name}")
-    geography = provenance["geographic_selection"]
-    print(f"Geographic selection: {geography['country']} (user-reported); shape {geography['shape_identifier']}")
+    matches = [entry for entry in registry.values() if entry["sha256"] == checksum
+               and entry["status"] != "pending_confirmation"]
+    if matches:
+        geography = matches[0]
+        status = geography["status"].replace("_", "-")
+        print(f"Geographic selection: {geography['country']} ({status}); shape {geography['shape_identifier']}")
+    else:
+        identity = geographic_identifiers(loaded.metadata)
+        print(f"Geographic selection: unresolved for this explicit source; shape {identity['shape_identifier']}. Use the country mapping for provenance.")
     print("The CSV does not independently verify the shape's country identity.")
     print(f"Analysis period: {result.years[0]}–{result.years[-1]}")
     print(f"Annual observations: {len(result.years)}; incomplete years excluded: {len(annual) - len(complete)}")

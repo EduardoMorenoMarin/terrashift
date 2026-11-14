@@ -1,6 +1,8 @@
 """Read Giovanni exports without changing or silently dropping records."""
 
 import csv
+import hashlib
+import json
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -8,6 +10,21 @@ import numpy as np
 import pandas as pd
 
 RAW_DIRECTORY = Path(__file__).resolve().parents[1] / "data" / "raw"
+
+
+def resolve_original_source(directory: str | Path = RAW_DIRECTORY) -> Path:
+    """Locate the original Peru bytes, allowing a rename without changing provenance.
+
+    This is an explicit legacy-source resolver, not multi-country discovery.
+    The saved checksum must match exactly one CSV, even if the old name exists.
+    """
+    provenance_path = Path(__file__).resolve().parents[1] / "metadata/dataset_provenance.json"
+    provenance = json.loads(provenance_path.read_text(encoding="utf-8"))
+    checksum = provenance["original_csv_sha256"]
+    matches = [p for p in Path(directory).glob("*.csv") if hashlib.sha256(p.read_bytes()).hexdigest() == checksum]
+    if len(matches) != 1:
+        raise ValueError(f"Expected exactly one CSV matching original Peru checksum; found {len(matches)} in {directory}.")
+    return matches[0].resolve()
 
 
 @dataclass
