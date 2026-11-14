@@ -3,8 +3,11 @@
 import pandas as pd
 import plotly.graph_objects as go
 
+from core.i18n import t, country_name
+from core.dashboard_copy import localize_notice
 
-def country_trend_figure(table: pd.DataFrame, geojson: dict, selected_iso3: str) -> go.Figure:
+
+def country_trend_figure(table: pd.DataFrame, geojson: dict, selected_iso3: str, *, lang: str = "en") -> go.Figure:
     """Tile-free map with bundled boundaries, symmetric scale and missing-data fill."""
     figure = go.Figure()
     valid = table['Trend (°C/decade)'].notna()
@@ -14,23 +17,22 @@ def country_trend_figure(table: pd.DataFrame, geojson: dict, selected_iso3: str)
         rows = table.loc[valid if available else ~valid]
         if rows.empty:
             continue
-        custom = [[row['Country'], row['Selected period'], row['Analysis period'],
-                   f"{row['Trend (°C/decade)']:+.3f} °C/decade" if available else 'Unavailable',
-                   row['Notice']] for _, row in rows.iterrows()]
+        custom = [[country_name(row['Country'], lang), row['Selected period'],
+                   row['Analysis period'] if available else t('common.unavailable', lang),
+                   f"{row['Trend (°C/decade)']:+.3f} {t('unit.trend', lang)}" if available else t('common.unavailable', lang),
+                   localize_notice(row['Notice'], lang)] for _, row in rows.iterrows()]
         figure.add_trace(go.Choroplethmap(
             geojson=geojson, featureidkey='properties.iso3', locations=rows['ISO-3'].tolist(),
             z=rows['Trend (°C/decade)'].tolist() if available else [0] * len(rows),
             zmin=-extent, zmax=extent, zmid=0,
             colorscale='RdBu_r' if available else [[0, '#DCE2E7'], [1, '#DCE2E7']],
             showscale=available,
-            colorbar=dict(title=dict(text='Annual trend<br>°C/decade'), thickness=16, len=.7),
+            colorbar=dict(title=dict(text=t('map.colorbar', lang)), thickness=16, len=.7),
             marker=dict(line=dict(
                 color=['#142C40' if code == selected_iso3 else 'white' for code in rows['ISO-3']],
                 width=[3 if code == selected_iso3 else 1 for code in rows['ISO-3']])),
-            customdata=custom, name='Country trends' if available else 'Trend unavailable',
-            hovertemplate=('<b>%{customdata[0]}</b><br>Trend: %{customdata[3]}'
-                           '<br>Selected period: %{customdata[1]}<br>Analysis period: %{customdata[2]}'
-                           '<br>%{customdata[4]}<extra></extra>'),
+            customdata=custom, name=t('map.traces' if available else 'map.trace_missing', lang),
+            hovertemplate=t('map.hover', lang),
         ))
     figure.update_layout(
         map=dict(style='white-bg', center=dict(lat=-23, lon=-60), zoom=1.65),

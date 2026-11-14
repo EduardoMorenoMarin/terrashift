@@ -5,7 +5,9 @@ from pathlib import Path
 import pandas as pd
 
 from core.dashboard_data import DashboardPeriod, prepare_period
-from core.region_data import MAPPING_PATH, RAW_DIRECTORY, load_country, read_country_mapping
+from core.dashboard_copy import localize_table
+from core.i18n import t, country_name
+from core.region_data import COUNTRIES, MAPPING_PATH, RAW_DIRECTORY, load_country, read_country_mapping
 
 # One distinct color per registered country, assigned alphabetically so selection
 # order does not change a country's color. Shared by Explore and Compare.
@@ -45,7 +47,7 @@ def prepare_comparison(countries: list[str], start_year: int, end_year: int, *,
     return periods
 
 
-def comparison_table(periods: dict[str, DashboardPeriod]) -> pd.DataFrame:
+def comparison_table(periods: dict[str, DashboardPeriod], *, lang: str = "en") -> pd.DataFrame:
     """Individual trend inference only; no test of differences between slopes."""
     rows = []
     for country, period in periods.items():
@@ -63,37 +65,29 @@ def comparison_table(periods: dict[str, DashboardPeriod]) -> pd.DataFrame:
             "R²": result.r_squared if result else None,
             "Trend significance": "Unavailable" if significant is None else "Statistically significant" if significant else "Not statistically significant",
         })
-    return pd.DataFrame(rows)
+    return localize_table(pd.DataFrame(rows), lang)
 
 
-def interpret_comparison(periods: dict[str, DashboardPeriod]) -> str:
-    """Summarize individual country fits in short, public-facing paragraphs."""
+def interpret_comparison(periods: dict[str, DashboardPeriod], *, lang: str = "en") -> str:
+    """Whole-sentence templates work for both one country and multiple countries."""
     results = {country: period.trend for country, period in periods.items() if period.trend is not None}
-    positive = [country for country, result in results.items() if result.slope_per_year > 0]
-    negative = [country for country, result in results.items() if result.slope_per_year < 0]
-    zero = [country for country, result in results.items() if result.slope_per_year == 0]
-    significant = [country for country, result in results.items() if result.hac.significant is True]
-    nonsignificant = [country for country, result in results.items() if result.hac.significant is False]
-    unavailable = [country for country, period in periods.items()
-                   if period.trend is None or period.trend.hac.significant is None]
-    direction = []
-    if positive:
-        direction.append(f"Estimated warming: **{', '.join(positive)}**.")
-    if negative:
-        direction.append(f"Estimated cooling: **{', '.join(negative)}**.")
-    if zero:
-        direction.append(f"No estimated linear change: **{', '.join(zero)}**.")
+    groups = {
+        "positive": [country for country, result in results.items() if result.slope_per_year > 0],
+        "negative": [country for country, result in results.items() if result.slope_per_year < 0],
+        "zero": [country for country, result in results.items() if result.slope_per_year == 0],
+        "significant": [country for country, result in results.items() if result.hac.significant is True],
+        "nonsignificant": [country for country, result in results.items() if result.hac.significant is False],
+        "unavailable": [country for country, period in periods.items()
+                        if period.trend is None or period.trend.hac.significant is None],
+    }
+    # Synthetic helper callers may use labels outside the registered countries.
+    def names(countries):
+        return ", ".join(country_name(country, lang) if country in COUNTRIES else country for country in countries)
+
+    direction = [t("interpret_compare." + key, lang, countries=names(groups[key]))
+                 for key in ("positive", "negative", "zero") if groups[key]]
     paragraphs = [" ".join(direction)] if direction else []
-    if significant:
-        paragraphs.append(f"Statistical evidence of an individual trend: **{', '.join(significant)}**. "
-                          "Each adjusted 95% confidence interval excludes zero, under the analysis assumptions.")
-    if nonsignificant:
-        paragraphs.append(f"The direction of change remains uncertain for **{', '.join(nonsignificant)}**: "
-                          "the adjusted intervals include zero. This does not mean temperatures stayed the same.")
-    if unavailable:
-        paragraphs.append(f"Trend uncertainty cannot be assessed for **{', '.join(unavailable)}**. "
-                          "This can occur with too few complete years or an almost exact linear fit.")
-    paragraphs.append("Trends are estimated separately for each country. Differences between countries should be interpreted cautiously; "
-                      "the table does not test whether their rates of change differ statistically. "
-                      "The results describe changes over the selected period, rather than what caused them.")
+    paragraphs.extend(t("interpret_compare." + key, lang, countries=names(groups[key]))
+                      for key in ("significant", "nonsignificant", "unavailable") if groups[key])
+    paragraphs.append(t("interpret_compare.caution", lang))
     return "\n\n".join(paragraphs)

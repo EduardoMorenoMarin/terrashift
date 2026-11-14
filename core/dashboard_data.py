@@ -7,6 +7,7 @@ import pandas as pd
 
 from core.data_cleaning import annual_mean_temperatures, annual_trend_ready
 from core.trend_analysis import TrendResult, analyze_annual_trend
+from core.i18n import t
 
 
 @dataclass
@@ -27,16 +28,16 @@ def prepare_period(monthly: pd.DataFrame, start_year: int, end_year: int) -> Das
     selected = monthly.loc[monthly.date.dt.year.between(start_year, end_year)].copy()
     if selected.empty:
         empty = pd.DataFrame(columns=["year", "temperature_k", "temperature_c", "valid_months", "is_complete"])
-        return DashboardPeriod(selected, empty, empty.copy(), None, "No temperature data is available for this period.")
+        return DashboardPeriod(selected, empty, empty.copy(), None, t("notice.no_data"))
     annual = annual_mean_temperatures(selected)
     complete = annual_trend_ready(annual)
     if len(complete) < 3:
         return DashboardPeriod(selected, annual, complete, None,
-                               "Choose at least three complete, consecutive years to estimate a trend. Temperature data is still shown below.")
+                               t("notice.insufficient"))
     try:
         trend = analyze_annual_trend(complete)
     except ValueError:
-        return DashboardPeriod(selected, annual, complete, None, "A trend could not be estimated for this period. Choose a different range of consecutive years with complete data.")
+        return DashboardPeriod(selected, annual, complete, None, t("notice.gaps"))
     return DashboardPeriod(selected, annual, complete, trend, None)
 
 
@@ -48,28 +49,18 @@ def processed_csv(period: DashboardPeriod, frequency: str) -> bytes:
     return frame.to_csv(index=False, date_format="%Y-%m-%d").encode("utf-8")
 
 
-def interpret_trend(result: TrendResult) -> str:
-    """Explain a computed annual trend without changing its inference."""
-    direction = "warming" if result.slope_per_year > 0 else "cooling" if result.slope_per_year < 0 else "no estimated linear change"
-    paragraphs = [
-        f"From {result.years[0]} to {result.years[-1]}, the estimated trend is "
-        f"**{result.slope_per_decade:+.3f} °C per decade**, indicating {direction}. "
-        f"The estimate uses {len(result.years)} complete years."
-    ]
+def interpret_trend(result: TrendResult, *, lang: str = "en") -> str:
+    """Explain the same inference with complete localized sentence templates."""
+    direction_key = "interpret.warming" if result.slope_per_year > 0 else "interpret.cooling" if result.slope_per_year < 0 else "interpret.zero"
+    paragraphs = [t("interpret.trend", lang, start=result.years[0], end=result.years[-1],
+                    slope=result.slope_per_decade, direction=t(direction_key, lang), years=len(result.years))]
     interval = result.hac.confidence_interval_per_decade
     if interval is not None:
-        uncertainty = (f"The **95% confidence interval is {interval[0]:+.3f} to {interval[1]:+.3f} °C per decade**. ")
-        if result.hac.significant:
-            uncertainty += "This provides statistical evidence of a trend over the selected period, under the analysis assumptions."
-        else:
-            uncertainty += "The interval includes zero, so the direction of change remains uncertain. This does not mean temperatures stayed the same."
-        paragraphs.append(uncertainty)
+        paragraphs.append(t("interpret.ci", lang, low=interval[0], high=interval[1]) +
+                          t("interpret.significant" if result.hac.significant else "interpret.nonsignificant", lang))
     else:
-        paragraphs.append("Statistical uncertainty cannot be assessed because the annual values follow an almost exact line. Confidence intervals and p-values are unavailable for this fit.")
-    paragraphs.append(
-        f"The last annual average is **{result.first_to_last_difference:+.3f} °C** relative to the first. "
-        "This first-to-last change compares two years; the trend summarizes all years in the period."
-    )
+        paragraphs.append(t("interpret.degenerate", lang))
+    paragraphs.append(t("interpret.difference", lang, difference=result.first_to_last_difference))
     if result.diagnostics.autocorrelation_detected:
-        paragraphs.append("Year-to-year patterns remain after fitting the trend. The confidence interval uses HAC adjustment to account for short-range dependence, though uncertainty is harder to estimate in a short record.")
+        paragraphs.append(t("interpret.dependence", lang))
     return "\n\n".join(paragraphs)

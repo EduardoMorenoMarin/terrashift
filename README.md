@@ -39,6 +39,8 @@ comparisons. Phase 5B.1 refines public copy, table labels and scientific
 explanations without changing data or calculations. Phase 5C adds an interactive
 South America trend map with bundled, attributed Natural Earth boundaries,
 explicit ISO-3 joins, shared year controls and a synchronized country selector.
+Phase 5D adds American English and Latin American Spanish throughout the dashboard,
+including scientific interpretations, charts, maps, tables and messages.
 No deployment, machine learning, chatbot, or
 AI-generated explanations are implemented. Interpretation uses deterministic
 text based on the computed statistics. Further phases await approval.
@@ -55,6 +57,8 @@ python3.12 -m venv .venv
 ```
 
 Open the local URL printed by Streamlit, normally `http://localhost:8501`.
+Use Streamlit **1.55 or later** (as specified in `requirements.txt`) for stable
+widget identity and tracked tabs when translated labels change.
 On Windows, use `.venv\Scripts\python` in place of `.venv/bin/python`.
 The code uses Python 3.11-compatible syntax. The current development environment
 was tested on Python 3.14; a separate 3.11/3.12 runtime check remains advisable
@@ -166,6 +170,69 @@ existing annual inference module. It provides the comparison table, consistent
 country colors and deterministic interpretation; no new statistical estimators
 or pairwise tests are introduced.
 
+## English and Spanish
+
+At the top of the sidebar, choose **English** or **Español** in the
+**Language / Idioma** selector. English is the default for a new browser session.
+The change immediately updates Explore / Explorar, Compare / Comparar and
+Methodology / Metodología, including map text, chart axes and hover labels,
+country names (for example, Peru → Perú and Brazil → Brasil), metric help,
+diagnostics, scientific interpretations, warnings, errors, sources and footer.
+Language is scoped to the current session; a page reload/new session returns
+to English rather than persisting a browser-wide preference.
+
+Switching preserves the country and comparison selections, start/end years,
+annual/monthly view, trend toggle and selected tab. Registry names and ISO-3
+identifiers remain internal. Language-only reruns reuse the session's scientific
+outputs without reloading NASA data or recomputing trends. Changed analysis
+inputs or source-file metadata trigger fresh work. Other reruns keep the existing
+refresh behavior; cached failures are not reused. Numerical values and decimal
+notation remain unchanged in both languages.
+
+The lightweight translation architecture uses:
+
+- `locales/en.json` and `locales/es.json`: matching stable keys and complete
+  sentence templates, including the full methodology text.
+- `core/i18n.py`: explicit `t(key, lang="en", **variables)`, country and month
+  labels, count forms, and strict catalog/placeholder validation. No process-wide
+  language variable or translation dependency is used.
+- `core/dashboard_copy.py`: translated copies of public tables and notices,
+  plus Plotly locale configuration; source frames are never modified.
+- `core/dashboard_state.py`: per-session analysis reuse, source metadata checks
+  and selected-tab preservation.
+
+To add or modify a translation:
+
+1. Add the same descriptive key to both UTF-8 JSON catalogs, or edit its existing
+   values without changing the key. Keep URLs, identifiers and proper names intact.
+2. Use named interpolation placeholders with identical names, conversions and
+   format specifications in both languages. For example,
+   `"{slope:+.3f} °C per decade"` / `"{slope:+.3f} °C por década"`.
+   For literal braces, including Plotly `%{...}` fields, double the braces in
+   the catalog: `%{{x:.3f}}`.
+3. Render with `t("key.name", lang, slope=value)`. Put full sentences in the
+   catalogs; select scientific branches using keys rather than language checks.
+   For counts, add `.one` and `.other` keys and use
+   `plural("count.key", count, lang)`. Country names use `country_name`.
+4. Restart the Streamlit process after editing JSON catalogs (they are cached
+   after strict startup validation), and run `.venv/bin/python -m pytest -q`.
+   Missing keys, duplicate keys, differing key sets, blank values, incompatible
+   placeholders or incorrect interpolation arguments fail explicitly.
+
+Monthly hover text and tick labels use catalog month names directly. Common
+Plotly toolbar labels also receive a local dictionary, with no external locale
+download. Streamlit-owned browser chrome, such as dataframe toolbar/search,
+fullscreen controls and application menus, may retain framework wording: the
+app does not replace those controls with custom components. Browser-native UI
+and linked external websites retain their own language. Those framework-owned
+strings and browser-level interaction/rendering still require manual review.
+
+Processed CSV downloads intentionally preserve the existing machine-readable
+schema, canonical country fields, dates, numeric values and filenames in both
+languages. Raw NASA datasets, country provenance, geographic assets, statistical
+methods and validation-script output are unchanged. See the
+[Phase 5D implementation notes](docs/phase_5d_localization.md).
+
 Absolute temperature levels reflect geography, elevation and climate and are
 not warming rates. Individual significance against zero does not establish a
 significant difference between countries; one significant and one
@@ -180,7 +247,7 @@ variation, and neither comparisons nor small p-values establish causation.
 
 Deployment has not been performed. When deployment is explicitly authorized:
 
-1. Include `app.py`, `core/`, `requirements.txt`, `.streamlit/config.toml`,
+1. Include `app.py`, `core/`, `locales/`, `requirements.txt`, `.streamlit/config.toml`,
    `metadata/country_mapping.json`, `metadata/dataset_provenance.json`, and the
    `data/geography/` and required CSVs named in the country registry in the GitHub repository. The
    newly suffixed raw files still need to be explicitly allowed by `.gitignore`
@@ -397,7 +464,7 @@ AI-generated explanations are implemented.
 Phase 2 tests are available in `tests/test_data.py`. Phase 3 synthetic and NASA
 pipeline tests are in `tests/test_trend_analysis.py`. Dashboard helper and
 Streamlit interaction tests are in `tests/test_dashboard.py`. Validation
-completed with **173 tests passing**, and all three scripts—`scripts/validate_data.py`,
+completed with **232 tests passing**, and all three scripts—`scripts/validate_data.py`,
 `scripts/analyze_trends.py`, and `scripts/validate_regions.py`—executed successfully. The raw CSV SHA-256 still
 matches the provenance record. Tests include full-period reference statistics,
 period filtering and recalculation, short and invalid ranges, incomplete years,
@@ -419,6 +486,10 @@ Phase 5C tests in `tests/test_map.py` cover all 12 ISO-3 mappings and geographic
 joins, real and synthetic map values, date filtering, missing and insufficient
 data, Plotly construction and map/Explore synchronization. Browser interactions
 remain a manual review item; see [the Phase 5C notes](docs/phase_5c_map.md).
+Phase 5D adds 59 tests in `tests/test_i18n.py` for the translation contract,
+country names, singular/plural forms, chart/map/table localization, unchanged
+scientific values, bilingual interpretations and errors, session isolation,
+selected-tab preservation, and language changes without data reload or inference.
 `tests/test_app_imports.py` also imports the real application in a fresh Python
 process with an isolated bytecode cache, verifying chart module paths, imported
 function identities and call signatures. Unresolved application imports fail
