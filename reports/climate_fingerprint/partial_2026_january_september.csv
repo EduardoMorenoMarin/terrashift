@@ -1,0 +1,13 @@
+country,iso3,year,months,expected_month_count,valid_months,is_complete_selection,comparison_type,reference_definition,partial_temperature_c,reference_partial_mean_c,partial_anomaly_c
+Argentina,ARG,2026,"[1,2,3,4,5,6,7,8,9]",9,9,True,partial year; same calendar months only,2000–2019; complete calendar years; equal-month means,13.51734844444447,13.41541816666669,0.10193027777778063
+Bolivia,BOL,2026,"[1,2,3,4,5,6,7,8,9]",9,9,True,partial year; same calendar months only,2000–2019; complete calendar years; equal-month means,20.90906155555559,20.19341683333336,0.7156447222222297
+Brazil,BRA,2026,"[1,2,3,4,5,6,7,8,9]",9,9,True,partial year; same calendar months only,2000–2019; complete calendar years; equal-month means,25.955811333333354,24.68080969444447,1.2750016388888845
+Chile,CHL,2026,"[1,2,3,4,5,6,7,8,9]",9,9,True,partial year; same calendar months only,2000–2019; complete calendar years; equal-month means,8.97761422222225,8.559365133333355,0.41824908888889567
+Colombia,COL,2026,"[1,2,3,4,5,6,7,8,9]",9,9,True,partial year; same calendar months only,2000–2019; complete calendar years; equal-month means,24.715583555555572,24.171149372222246,0.5444341833333262
+Ecuador,ECU,2026,"[1,2,3,4,5,6,7,8,9]",9,9,True,partial year; same calendar months only,2000–2019; complete calendar years; equal-month means,22.305719000000018,21.32381864444447,0.981900355555549
+Guyana,GUY,2026,"[1,2,3,4,5,6,7,8,9]",9,9,True,partial year; same calendar months only,2000–2019; complete calendar years; equal-month means,26.779826444444463,25.53189545000002,1.2479309944444417
+Peru,PER,2026,"[1,2,3,4,5,6,7,8,9]",9,9,True,partial year; same calendar months only,2000–2019; complete calendar years; equal-month means,20.340804111111133,19.47940675555558,0.8613973555555532
+Paraguay,PRY,2026,"[1,2,3,4,5,6,7,8,9]",9,9,True,partial year; same calendar months only,2000–2019; complete calendar years; equal-month means,24.423591333333352,23.55271744444447,0.8708738888888838
+Suriname,SUR,2026,"[1,2,3,4,5,6,7,8,9]",9,9,True,partial year; same calendar months only,2000–2019; complete calendar years; equal-month means,26.6585698888889,25.49658035555558,1.161989533333319
+Uruguay,URY,2026,"[1,2,3,4,5,6,7,8,9]",9,9,True,partial year; same calendar months only,2000–2019; complete calendar years; equal-month means,16.659760333333356,16.433356244444468,0.22640408888888786
+Venezuela,VEN,2026,"[1,2,3,4,5,6,7,8,9]",9,9,True,partial year; same calendar months only,2000–2019; complete calendar years; equal-month means,26.98329744444446,26.007411533333354,0.9758859111111065

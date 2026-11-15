@@ -47,6 +47,9 @@ Phase 5D adds American English and Latin American Spanish throughout the dashboa
 including scientific interpretations, charts, maps, tables and messages.
 Phase 5F integrates the audited 2000–September 2026 datasets, reviewed coverage
 manifests, dynamic coverage labels and explicit partial-year presentation.
+Phase 5G.1 adds a separate descriptive Climate Fingerprint analysis engine,
+with country-specific 2000–2019 baselines, anomaly datasets and a computed report;
+it does not change the Streamlit interface.
 No deployment, machine learning, chatbot, or
 AI-generated explanations are implemented. Interpretation uses deterministic
 text based on the computed statistics. Further phases await approval.
@@ -458,6 +461,90 @@ Nothing is annualized, interpolated or inferred for October–December.
 See [the Phase 5F audit and implementation report](docs/phase_5f_dataset_update.md)
 for all 12 country results, source discrepancies, metadata history and checks.
 
+## South America's Climate Fingerprint — Phase 5G.1
+
+This analysis-only engine describes departures from each country's own climate,
+not differences between absolute country temperatures. It introduces no ML,
+causal attribution, regional significance tests or dashboard changes. The existing
+Kelvin conversion, annual aggregation and OLS/HAC code are unchanged.
+
+```bash
+.venv/bin/python scripts/analyze_fingerprint.py
+```
+
+Outputs are in `reports/climate_fingerprint/`; the
+[computed scientific report](docs/phase_5g_1_climate_fingerprint.md) contains the
+actual discoveries, baseline sensitivity, limitations and visualization proposals.
+The CLI accepts `--output-directory` and `--report`, supports other working
+directories and refuses output destinations within the raw-data directory.
+
+`core/climate_fingerprint.py` provides reusable, explicit calculations:
+
+```python
+from core.climate_fingerprint import (
+    load_fingerprint, shared_warm_years, most_shared_years,
+    largest_positive_anomalies, similar_country_patterns, partial_year_anomalies,
+)
+
+fingerprint = load_fingerprint()  # all 12 countries through the validated registry
+matrix = fingerprint.anomaly_matrix       # 12 ISO-3 rows × 26 years (2000–2025)
+cells = fingerprint.annual                # 312 country/year records with metadata
+shared = shared_warm_years(fingerprint)
+most_positive = most_shared_years(shared, "n_positive")
+most_above_cutoff = most_shared_years(shared, "n_above_threshold")
+peaks = largest_positive_anomalies(fingerprint)
+pairs = similar_country_patterns(fingerprint)
+partial = partial_year_anomalies(fingerprint)  # Jan–Sep 2026, matched months only
+```
+
+Annual anomalies subtract each country's mean of **20 complete annual means,
+2000–2019**. Monthly anomalies subtract its matching calendar month's 2000–2019
+mean, accounting for seasonality. Every baseline year/month must be present and
+valid; the engine fails explicitly rather than shortening or imputing the reference.
+No 2020–2026 observations enter these primary references or thresholds.
+
+The long `annual_fingerprint.csv` gives country, ISO-3, year, annual temperature,
+anomaly, valid-month count, completeness status, reference definition and mean,
+and the country's reference annual 90th-percentile threshold. The numeric matrix
+is a convenient view of those same cells. Missing target years remain unavailable
+cells; partial means never become annual anomalies. `build_fingerprint()` accepts
+validated monthly frames and a registry for reuse/testing; `country_anomalies()`
+provides an individual-country calculation. `FingerprintConfig` permits explicit
+historical-reference sensitivity without changing the primary default.
+
+Shared-year summaries record positive/negative/zero and threshold-exceedance
+counts plus contributing ISO-3 lists. The mean is **equally weighted across all
+12 countries**, not area/population weighted, and is unavailable if any country
+is missing. Discovery rankings omit incomplete panels. The warm cutoff is the
+empirical annual **90th percentile**, using NumPy's explicit linear interpolation
+and strict exceedance. The 20-point distribution is small and its cutoff is not
+an absolute climate-risk classification. “Widespread” means at least **9 of 12**
+countries above their own cutoff. This is a descriptive rule, not a significance
+test; the countries are spatially dependent and are never treated as independent
+trials. Numerical differences within 1e-12 °C of zero are treated as floating-point
+zero, not scientifically meaningful thresholds.
+
+Discovery helpers retain all maximum-count year ties and tied country peak years;
+positive-event ranking breaks exact ties by year then ISO-3. Pattern similarity
+uses Pearson correlations over the common full 26-year window, accompanied by
+first-difference correlations. Incomplete or constant patterns are unavailable;
+there is no pairwise deletion or p-value. Common trends can inflate level
+correlation, and selected similarities do not imply causation.
+
+All **108 January–September 2026 monthly anomalies** remain available separately.
+The optional nine-month summary uses only January–September reference months,
+never the full-year mean or annual percentile. It is not part of the annual matrix,
+a 2026 annual estimate, or a forecast. No result implies local heatwaves, daily
+extremes, or unprecedented conditions outside the available observation period.
+
+The report repeats the calculations with **2000–2009** solely as a baseline
+sensitivity check using the same loaded observations. Generated artifacts include
+reference tables, complete-year cells/matrix, all monthly anomalies, shared-year
+contributors, country peaks, all 66 country pairs and separate partial-year data.
+CSV list fields use JSON arrays. `manifest.json` records source checksums,
+configuration, scientific policies and output hashes for reproduction. All
+scientific numbers in the report come from the calculation functions.
+
 ## Statistical analysis
 
 `core/trend_analysis.py` fits annual mean Celsius against calendar year using
@@ -516,7 +603,7 @@ AI-generated explanations are implemented.
 Phase 2 tests are available in `tests/test_data.py`. Phase 3 synthetic and NASA
 pipeline tests are in `tests/test_trend_analysis.py`. Dashboard helper and
 Streamlit interaction tests are in `tests/test_dashboard.py`. Validation
-completed with **265 tests passing**, and all three scripts—`scripts/validate_data.py`,
+completed with **320 tests passing**, and all three scripts—`scripts/validate_data.py`,
 `scripts/analyze_trends.py`, and `scripts/validate_regions.py`—executed successfully. The raw CSV SHA-256 still
 matches the provenance record. Tests include full-period reference statistics,
 period filtering and recalculation, short and invalid ranges, incomplete years,
@@ -547,6 +634,10 @@ checksums and source audits, requested-versus-observed coverage, partial 2026,
 complete-year charts/trends, map/comparison consistency, future extensions,
 bilingual startup and 2026 navigation. Existing historical-period reference
 statistics and statistical-method tests remain intact.
+Phase 5G.1 adds 55 tests in `tests/test_climate_fingerprint.py` for hand-calculated
+reference/seasonal anomalies and quantiles, equal-country counts/weighting,
+missing/constant series, reference leakage, separate partial-year handling,
+deterministic ties, similarity, source immutability and reproducible report exports.
 `tests/test_app_imports.py` also imports the real application in a fresh Python
 process with an isolated bytecode cache, verifying chart module paths, imported
 function identities and call signatures. Unresolved application imports fail

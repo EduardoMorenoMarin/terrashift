@@ -1,0 +1,117 @@
+{
+  "analysis": "TerraShift Phase 5G.1; descriptive analysis only",
+  "config": {
+    "reference_start": 2000,
+    "reference_end": 2019,
+    "first_year": 2000,
+    "last_year": 2025,
+    "warm_quantile": 0.9,
+    "widespread_fraction": 0.75
+  },
+  "quantile_method": "linear",
+  "zero_tolerance_c": 1e-12,
+  "sources": [
+    {
+      "country": "Argentina",
+      "iso3": "ARG",
+      "filename": "g4.areaAvgTimeSeries.M2TMNXSLV_5_12_4_T2M.20000101-20261031.180W_90S_180E_90N_ARG.csv",
+      "sha256": "7ab5263c78af1b71b32853efa5f691a27add1c035f7a1ef5271a2ffc215bbb20"
+    },
+    {
+      "country": "Bolivia",
+      "iso3": "BOL",
+      "filename": "g4.areaAvgTimeSeries.M2TMNXSLV_5_12_4_T2M.20000101-20261031.180W_90S_180E_90N_BOL.csv",
+      "sha256": "a227ebbdc50f48c0d5bac9d27792034e68e70677a6a7f9ece74105942b160e24"
+    },
+    {
+      "country": "Brazil",
+      "iso3": "BRA",
+      "filename": "g4.areaAvgTimeSeries.M2TMNXSLV_5_12_4_T2M.20000101-20261031.180W_90S_180E_90N_BR.csv",
+      "sha256": "21cf144dfc3ef84de04993ed9324d2fb8c7254d2970e6b84c901416bf0d905ba"
+    },
+    {
+      "country": "Chile",
+      "iso3": "CHL",
+      "filename": "g4.areaAvgTimeSeries.M2TMNXSLV_5_12_4_T2M.20000101-20261031.180W_90S_180E_90N_CH.csv",
+      "sha256": "07edcea6bc64db8ff1230dff377ba61bbf7aaeb5a02d2e726261837b3fbd2c62"
+    },
+    {
+      "country": "Colombia",
+      "iso3": "COL",
+      "filename": "g4.areaAvgTimeSeries.M2TMNXSLV_5_12_4_T2M.20000101-20261031.180W_90S_180E_90N_COL.csv",
+      "sha256": "f02143a3dc0958036d1edd8357b4dd8b6d8e1e19aa7cf29e275993ac46f504ec"
+    },
+    {
+      "country": "Ecuador",
+      "iso3": "ECU",
+      "filename": "g4.areaAvgTimeSeries.M2TMNXSLV_5_12_4_T2M.20000101-20261031.180W_90S_180E_90N_ECU.csv",
+      "sha256": "52ba21ac6cfcb4dbcc0a2a707aaa775a87ba47f8d6dfdef9bc1673d06bde2dd5"
+    },
+    {
+      "country": "Guyana",
+      "iso3": "GUY",
+      "filename": "g4.areaAvgTimeSeries.M2TMNXSLV_5_12_4_T2M.20000101-20261031.180W_90S_180E_90N_GUY.csv",
+      "sha256": "9b0d61d217e5098e3506145b59237b2f4ccf1222676bce401a8e114603bea154"
+    },
+    {
+      "country": "Peru",
+      "iso3": "PER",
+      "filename": "g4.areaAvgTimeSeries.M2TMNXSLV_5_12_4_T2M.20000101-20251231.180W_90S_180E_90N_SURI_PER.csv",
+      "sha256": "80625d4c6879618b17770f7f78170c21d3d0da96b9f044ca378fa704fe4fa79a"
+    },
+    {
+      "country": "Paraguay",
+      "iso3": "PRY",
+      "filename": "g4.areaAvgTimeSeries.M2TMNXSLV_5_12_4_T2M.20000101-20261031.180W_90S_180E_90N_PAR.csv",
+      "sha256": "68d6fb1d1cc187f705034aa68bc2083884a113bad1b6d497e9b068eedb965bdc"
+    },
+    {
+      "country": "Suriname",
+      "iso3": "SUR",
+      "filename": "g4.areaAvgTimeSeries.M2TMNXSLV_5_12_4_T2M.20000101-20261031.180W_90S_180E_90N_SURI.csv",
+      "sha256": "35a8517522b7c9236e4b8610ebb901fbc3b351c3487bb025b27b1fb9b72896ca"
+    },
+    {
+      "country": "Uruguay",
+      "iso3": "URY",
+      "filename": "g4.areaAvgTimeSeries.M2TMNXSLV_5_12_4_T2M.20000101-20261031.180W_90S_180E_90N_URU.csv",
+      "sha256": "e059966e03c74d8a645e0c235160b0ff6c362aea7b1f6ea47905d1e45564d6d9"
+    },
+    {
+      "country": "Venezuela",
+      "iso3": "VEN",
+      "filename": "g4.areaAvgTimeSeries.M2TMNXSLV_5_12_4_T2M.20000101-20261031.180W_90S_180E_90N_VEN.csv",
+      "sha256": "89c1f940e4a4977736801c36cf2f950ccd655d04439e95306fbc36eda0967507"
+    }
+  ],
+  "annual_cells": 312,
+  "monthly_cells": 3852,
+  "reference_policy": "Require every complete reference year and all calendar-month observations; no imputation.",
+  "weighting": "Each country 1/12; no independent-country inference, area or population weighting.",
+  "missing_target_policy": "Retain unavailable annual cells; regional mean/discoveries require complete panels.",
+  "partial_policy": "2026 monthly retained; Jan\u2013Sep compared only with reference Jan\u2013Sep; no annual threshold.",
+  "similarity_policy": "Full-window Pearson levels and first differences; constant/incomplete pairs unavailable; no p-values.",
+  "sensitivity_reference": {
+    "reference_start": 2000,
+    "reference_end": 2009,
+    "first_year": 2000,
+    "last_year": 2025,
+    "warm_quantile": 0.9,
+    "widespread_fraction": 0.75
+  },
+  "artifact_sha256": {
+    "annual_anomaly_matrix.csv": "9b4f3bd809828b12f98eeccd55e8d09f6375f116aa89153b6b118861ac0437d3",
+    "annual_fingerprint.csv": "a68c287d359ecb3597499ac5939dd6e9b2d3d57e67b6e1ac6a92c9d1d58daad1",
+    "annual_references.csv": "4fb5d79e383c912e2f409d5ba5d4507b0bfc97e54f0beb2da051d4057d11e8ad",
+    "country_peak_anomalies.csv": "d09e7cfdcf848357c1d8298715881101abf4396697ff1a7c1722883fc15c2ee8",
+    "largest_positive_anomalies.csv": "59539b41319fea70094b0a49e4c76564277aa19803e1e2185aebad1ddba6e3ae",
+    "monthly_anomalies.csv": "4368fbcae0d408cb349a16bea5160ce2faf99f3696646bb5f458420a683bfe13",
+    "monthly_references.csv": "4b36decbf7281ddfdff45aebfdd0c80b4c91379f386149c5b27ed8bdcbe2f7ef",
+    "partial_2026_january_september.csv": "845b7fc7468ff69a138f295accb6415852a248efb7c556cdb9822ee6405b4f10",
+    "sensitivity_2000_2009_references.csv": "e8ae5230bb42f28f2c24e96639fc4732728016b2c0b08aad177bcb3e7d50f466",
+    "sensitivity_2000_2009_shared_years.csv": "ae4358038e4e6099fb41222156b3d3a9aa9b6120faa14801868382bfd7137f81",
+    "shared_warm_years.csv": "a176c7bb3caf4ab1298a02724f899c970074cbc152ba7840a64867521143f801",
+    "similar_country_patterns.csv": "ea404ee9defc2f3fe73ab6eca7926f1080c32114ec661c956001da64cf16a001"
+  },
+  "report_sha256": "a312f9f2c4920605627fe6bf041a097bb6d45fb8e22324f2da28fa442053f9f2"
+}

@@ -1,0 +1,13 @@
+country,iso3,reference_start,reference_end,reference_definition,reference_year_count,reference_mean_c,warm_quantile,quantile_method,warm_threshold_temperature_c,warm_threshold_anomaly_c
+Argentina,ARG,2000,2009,2000–2009; complete calendar years; equal-month means,10,14.47357861666669,0.9,linear,14.90004396666669,0.4264653499999991
+Bolivia,BOL,2000,2009,2000–2009; complete calendar years; equal-month means,10,20.738537350000023,0.9,linear,20.90049019166669,0.16195284166666823
+Brazil,BRA,2000,2009,2000–2009; complete calendar years; equal-month means,10,24.83371125000002,0.9,linear,25.151020608333354,0.3173093583333326
+Chile,CHL,2000,2009,2000–2009; complete calendar years; equal-month means,10,8.86373875000002,0.9,linear,9.232908300000023,0.3691695500000023
+Colombia,COL,2000,2009,2000–2009; complete calendar years; equal-month means,10,24.086129516666688,0.9,linear,24.303876283333363,0.21774676666667503
+Ecuador,ECU,2000,2009,2000–2009; complete calendar years; equal-month means,10,21.36046576666669,0.9,linear,21.815780408333364,0.4553146416666749
+Guyana,GUY,2000,2009,2000–2009; complete calendar years; equal-month means,10,25.502247341666685,0.9,linear,26.094829733333366,0.5925823916666815
+Peru,PER,2000,2009,2000–2009; complete calendar years; equal-month means,10,19.574178100000022,0.9,linear,19.839501708333362,0.2653236083333397
+Paraguay,PRY,2000,2009,2000–2009; complete calendar years; equal-month means,10,24.64979759166669,0.9,linear,25.076111125000022,0.42631353333333166
+Suriname,SUR,2000,2009,2000–2009; complete calendar years; equal-month means,10,25.81787038333336,0.9,linear,26.21934736666669,0.40147698333332826
+Uruguay,URY,2000,2009,2000–2009; complete calendar years; equal-month means,10,17.189950333333353,0.9,linear,17.55831186666669,0.368361533333335
+Venezuela,VEN,2000,2009,2000–2009; complete calendar years; equal-month means,10,25.71858826666669,0.9,linear,26.28714449166669,0.5685562250000018

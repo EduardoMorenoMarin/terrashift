@@ -1,0 +1,6 @@
+year,valid_months,is_complete,data_status,annual_temperature_c,annual_anomaly_c,country,iso3,reference_start,reference_end,reference_definition,reference_year_count,reference_mean_c,warm_quantile,quantile_method,warm_threshold_temperature_c,warm_threshold_anomaly_c
+2024,12,True,complete,28.11259100000002,2.3627096375,Guyana,GUY,2000,2019,2000–2019; complete calendar years; equal-month means,20,25.74988136250002,0.9,linear,26.225349658333357,0.4754682958333376
+2024,12,True,complete,27.906284583333356,1.96130622916667,Suriname,SUR,2000,2019,2000–2019; complete calendar years; equal-month means,20,25.944978354166686,0.9,linear,26.385458600000018,0.44048024583333145
+2024,12,True,complete,27.85140383333335,1.949885458333334,Venezuela,VEN,2000,2019,2000–2019; complete calendar years; equal-month means,20,25.901518375000016,0.9,linear,26.42929085000002,0.5277724750000026
+2023,12,True,complete,19.080486666666697,1.8744278916666737,Uruguay,URY,2000,2019,2000–2019; complete calendar years; equal-month means,20,17.206058775000024,0.9,linear,17.664652566666692,0.4585937916666687
+2024,12,True,complete,26.79442241666669,1.6945763958333373,Brazil,BRA,2000,2019,2000–2019; complete calendar years; equal-month means,20,25.099846020833354,0.9,linear,25.83222834166669,0.7323823208333344
