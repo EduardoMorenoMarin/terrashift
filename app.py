@@ -1,4 +1,4 @@
-"""TerraShift AI: run with `python -m streamlit run app.py`."""
+"""TerraShift: run with `python -m streamlit run app.py`."""
 
 import logging
 from pathlib import Path
@@ -14,12 +14,15 @@ from core.country_comparison import (available_countries, country_colors, prepar
                                      comparison_table, interpret_comparison)
 from core.map_data import load_map_data
 from core.map_charts import country_trend_figure
-from core.i18n import t, country_name, plural, LANGUAGES
+from core.i18n import t, country_name, plural, LANGUAGES, catalogs
 from core.dashboard_copy import localize_table, localize_notice, chart_config, coverage_labels, source_request_notice
 from core.dashboard_state import begin_presentation, analysis_value, localized_tabs
 
 ROOT = Path(__file__).resolve().parent
 LOGGER = logging.getLogger(__name__)
+
+# Refresh public copy on reruns even when the server retains imported modules.
+catalogs.cache_clear()
 
 st.markdown("""<style>
 .block-container {max-width: 1240px; padding-top: 2rem;}
