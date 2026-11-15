@@ -9,6 +9,7 @@ from pathlib import Path
 import pandas as pd
 
 from core.dashboard_data import prepare_period
+from core.i18n import t
 from core.data_loader import RAW_DIRECTORY
 from core.region_data import COUNTRIES, MAPPING_PATH, load_country, read_country_mapping
 
@@ -72,7 +73,7 @@ def map_trend_table(monthly_by_country: dict[str, pd.DataFrame], registry: dict[
             'Analysis period': f'{trend.years[0]}–{trend.years[-1]}' if trend else 'Unavailable',
             'Years analyzed': len(period.complete_annual) if period is not None else 0,
             'Trend (°C/decade)': trend.slope_per_decade if trend else None,
-            'Notice': (period.analysis_notice or '') if period is not None else 'Temperature data is unavailable.',
+            'Notice': (period.analysis_notice or (t('notice.partial_year') if len(period.annual) != len(period.complete_annual) else '')) if period is not None else 'Temperature data is unavailable.',
         })
     return pd.DataFrame(rows)
 

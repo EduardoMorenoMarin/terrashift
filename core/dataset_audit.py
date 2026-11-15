@@ -3,16 +3,18 @@
 import csv
 import hashlib
 import math
+
+import pandas as pd
 from collections import Counter
 from datetime import datetime
 from pathlib import Path
 
 from core.data_loader import load_data
 from core.data_cleaning import clean_monthly, annual_mean_temperatures, annual_trend_ready
-from core.region_data import EXPECTED_MONTHS, geographic_identifiers, validate_dataset
+from core.region_data import expected_observation_months, geographic_identifiers, validate_dataset
 
 
-def inspect_dataset(path: str | Path) -> dict:
+def inspect_dataset(path: str | Path, *, coverage: dict | None = None) -> dict:
     """Audit raw fields without repairing, deleting or assigning a country.
 
     The raw-field pass counts independent defects even when strict loading
@@ -22,7 +24,7 @@ def inspect_dataset(path: str | Path) -> dict:
     report = {"filename": path.name, "errors": [], "monthly_observations": 0,
               "malformed_records": 0, "invalid_timestamps": 0, "invalid_numeric_values": 0,
               "blank_temperatures": 0, "fill_values": 0, "nonfinite_temperatures": 0,
-              "duplicate_timestamps": 0, "metadata": {}, "first_date": None, "last_date": None,
+              "duplicate_timestamps": 0, "duplicate_months": 0, "warnings": [], "metadata": {}, "first_date": None, "last_date": None,
               "missing_months": [], "complete_years": None, "minimum_c": None, "maximum_c": None}
     try:
         raw = path.read_bytes()
@@ -41,6 +43,8 @@ def inspect_dataset(path: str | Path) -> dict:
     report.update(geographic_identifiers(report["metadata"]))
     report["units"] = "K (NASA T2M documentation; not explicit in export)"
     report["units_evidence"] = "Same collection/variable as original Peru provenance; metadata/dataset_provenance.json units_reference"
+    report["unit_metadata"] = {key: value for key, value in report["metadata"].items() if "unit" in key.lower()}
+    report["units_explicit_in_export"] = bool(report["unit_metadata"])
     columns = [cell.strip() for cell in rows[header_index]]
     report["columns"] = columns
     raw_columns = rows[header_index]
@@ -85,9 +89,18 @@ def inspect_dataset(path: str | Path) -> dict:
         report["last_date"] = max(dates).isoformat(sep=" ")
         report["duplicate_timestamps"] = sum(count - 1 for count in Counter(dates).values())
         report["chronological"] = dates == sorted(dates)
+        report["duplicate_months"] = sum(count - 1 for count in Counter((date.year, date.month) for date in dates).values())
     present = {f"{d.year:04d}-{d.month:02d}" for d in dates}
-    report["missing_months"] = [str(m) for m in EXPECTED_MONTHS if str(m) not in present]
-    report["unexpected_months"] = sorted(present - {str(m) for m in EXPECTED_MONTHS})
+    try:
+        expected = (expected_observation_months(coverage) if coverage is not None else
+                    pd.period_range(pd.Timestamp(report["metadata"]["User Start Date"]).strftime("%Y-%m"),
+                                    pd.Timestamp(report["metadata"]["User End Date"]).strftime("%Y-%m"), freq="M"))
+        report["expected_observations"] = len(expected)
+        report["expected_coverage"] = [str(expected[0]), str(expected[-1])]
+        report["missing_months"] = [str(month) for month in expected if str(month) not in present]
+        report["unexpected_months"] = sorted(present - {str(month) for month in expected})
+    except (ValueError, KeyError, TypeError, IndexError) as exc:
+        report["errors"].append(f"Cannot establish expected coverage: {exc}")
     try:
         loaded = load_data(path)
         monthly = clean_monthly(loaded.observations)
@@ -95,10 +108,19 @@ def inspect_dataset(path: str | Path) -> dict:
         report["valid_temperatures"] = int(monthly.temperature_k.count())
         report["missing_temperatures"] = int(monthly.temperature_k.isna().sum())
         report["complete_years"] = len(annual_trend_ready(annual))
+        report["complete_year_list"] = annual.loc[annual.is_complete, "year"].astype(int).tolist()
+        report["incomplete_years"] = [{"year": int(row.year), "valid_months": int(row.valid_months)}
+                                       for row in annual.loc[~annual.is_complete].itertuples()]
+        report["missing_requested_months"] = list(loaded.missing_months)
+        report["reviewed_unavailable_requested_months"] = list((coverage or {}).get("unavailable_requested_months", []))
+        if loaded.missing_months:
+            report["warnings"].append("Requested months absent from the export: " + ", ".join(loaded.missing_months))
+        if coverage:
+            report["coverage_review"] = coverage.get("coverage_note", "")
         if monthly.temperature_c.notna().any():
             report["minimum_c"] = float(monthly.temperature_c.min())
             report["maximum_c"] = float(monthly.temperature_c.max())
-        validate_dataset(loaded)
+        validate_dataset(loaded, coverage=coverage)
     except (ValueError, OSError) as exc:
         report["errors"].append(str(exc))
     if report["data_id"] != "M2TMNXSLV_5_12_4_T2M":

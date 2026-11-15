@@ -6,15 +6,19 @@ objective is to quantify environmental trends and assess their statistical
 uncertainty while preserving reproducible data provenance.
 
 The current dataset is NASA MERRA-2, collection M2TMNXSLV v5.12.4, variable T2M
-(2-meter air temperature), exported through Giovanni. It contains 312 monthly
-area-averaged observations from January 2000 through December 2025. Peru was
+(2-meter air temperature), exported through Giovanni. Each of the 12 current
+country files contains **321 monthly area-averaged observations from January
+2000 through September 2026**. Complete annual coverage is **2000–2025 (26 years)**;
+2026 has only nine months and is excluded from annual charts and OLS/HAC trends. Peru was
 selected manually by the user; the export records shape
 `state_dept_countries_2017/shp_174` but does not independently identify its country.
 Original temperatures are in Kelvin, verified against NASA documentation.
 Phase 5A adds an inventory of 12 Giovanni exports confirmed by the user to cover
 all sovereign South American countries. Each file has the same collection,
-variable, monthly coverage and observation count. The original Peru bytes are
-now named with a `_PER.csv` suffix. The user explicitly confirms selecting each
+variable, monthly coverage and observation count. Phase 5F replaces the earlier
+2000–2025 exports with the new release; historical metadata and checksums are
+archived under `metadata/history/phase_5d/`. The original raw bytes are no longer
+available in `data/raw/`. The user explicitly confirms selecting each
 country individually in Giovanni and manually naming the files with the
 corresponding country suffixes. All 12 associations are `user_confirmed`,
 preserving the distinction from independent geographic verification.
@@ -41,6 +45,8 @@ South America trend map with bundled, attributed Natural Earth boundaries,
 explicit ISO-3 joins, shared year controls and a synchronized country selector.
 Phase 5D adds American English and Latin American Spanish throughout the dashboard,
 including scientific interpretations, charts, maps, tables and messages.
+Phase 5F integrates the audited 2000–September 2026 datasets, reviewed coverage
+manifests, dynamic coverage labels and explicit partial-year presentation.
 No deployment, machine learning, chatbot, or
 AI-generated explanations are implemented. Interpretation uses deterministic
 text based on the computed statistics. Further phases await approval.
@@ -74,8 +80,10 @@ To run all checks:
 ```
 
 The single-dataset validation and analysis scripts accept an explicit CSV path;
-without one they locate the original Peru bytes by the preserved provenance
-checksum, allowing the `_PER.csv` rename. Generic `load_data()` automatic
+without one they use `resolve_reference_source()` to load the active Peru release
+through the validated country registry. The separate `resolve_original_source()`
+continues to mean the historical checksum and intentionally fails when those old
+bytes are absent; it never relabels new bytes as the original release. Generic `load_data()` automatic
 discovery still requires exactly one CSV and now raises an ambiguity error;
 use an explicit path or country loader for multi-file directories.
 The dashboard defaults to Peru and calls `load_country(selected_country)` using
@@ -230,7 +238,8 @@ strings and browser-level interaction/rendering still require manual review.
 Processed CSV downloads intentionally preserve the existing machine-readable
 schema, canonical country fields, dates, numeric values and filenames in both
 languages. Raw NASA datasets, country provenance, geographic assets, statistical
-methods and validation-script output are unchanged. See the
+methods are unaffected by localization. Validation scripts remain English and
+report the active audited release. See the
 [Phase 5D implementation notes](docs/phase_5d_localization.md).
 
 Absolute temperature levels reflect geography, elevation and climate and are
@@ -265,12 +274,12 @@ Keep `.streamlit/secrets.toml`, `.env*`, local environments and caches out of
 version control. Only the theme configuration is intended for tracking.
 
 ```python
-from core.data_loader import load_data, resolve_original_source
+from core.data_loader import load_data, resolve_reference_source
 from core.data_cleaning import (
     clean_monthly, annual_mean_temperatures, annual_trend_ready,
 )
 
-loaded = load_data(resolve_original_source())
+loaded = load_data(resolve_reference_source())
 monthly = clean_monthly(loaded.observations)
 annual = annual_mean_temperatures(monthly)
 complete_annual = annual_trend_ready(annual)
@@ -330,11 +339,15 @@ The exact suffixes are retained as assigned:
 | Venezuela | VEN |
 
 The prior mapping status and evidence remain in each entry's
-`provenance_history`. Peru also matches its historical source checksum.
+`provenance_history`. Each active entry now includes the prior filename, checksum,
+shape and status in `dataset_history`; the new bytes have new checksums.
 Reserve `independently_verified` for a mapping backed by an authoritative
 country-to-shape reference. No country identity is independently verified by
-the CSVs themselves. Existing `metadata/dataset_provenance.json` is preserved
-unchanged, including its historical original filename.
+the CSVs themselves. `metadata/dataset_provenance.json` retains its historical
+fields and adds a clearly separate `current_dataset` record. Its prior version
+is also archived unchanged. Peru's observed filename ends in `_SURI_PER.csv` and
+retains a stale 2025 date label; its original Peru shape matches exactly. The
+filename is recorded verbatim, without modifying or renaming the raw CSV.
 
 `core/region_data.py` exposes `load_country(country)` and returns source NASA
 metadata, mapping evidence, checksum and standardized tables:
@@ -359,8 +372,12 @@ Pending country mappings cannot be loaded as countries. Confirmed entries are
 checked against file bytes and the reproduction URL shape. Duplicate countries,
 files, hashes and shapes are rejected, as are duplicate JSON keys and unsafe
 filenames. Every dataset must identify `M2TMNXSLV_5_12_4_T2M` in its Giovanni
-URL, monthly resolution, and the full January 2000–December 2025 calendar
-coverage, consistent with metadata and reproduction URL dates. Kelvin units
+URL and monthly resolution. A reviewed `coverage` manifest records actual
+start/end months, observation count, requested timestamps and explicitly reviewed
+requested-but-unavailable terminal months. Validation checks this manifest against
+the actual observations, metadata and reproduction URL. Without a manifest,
+every requested month must be present. No terminal year or fixed record count is
+hardcoded in the validator. Kelvin units
 come from the existing NASA documentation verification for that exact variable;
 the real exports do not explicitly state units. Contradictory explicit unit
 metadata is rejected.
@@ -382,10 +399,10 @@ resolved mappings, **1** for invalid data/mapping/file errors, **2** for unresol
 country mappings with otherwise valid data. Current validation exits **0**:
 all 12 datasets are valid and all 12 mappings are user-confirmed.
 
-`metadata/region_inventory.json` is the read-only inspection snapshot generated
-during the initial Phase 5A audit, before explicit country confirmation. Its
-country summary is historical and retains that earlier pending state; the
-registry and live validator provide current provenance status. The snapshot
+`metadata/region_inventory.json` is the regenerated Phase 5F inspection snapshot.
+The prior inventory is preserved unchanged in `metadata/history/phase_5d/`,
+including its historical pending statuses. The current inventory, registry and
+live validator provide the active release information. The snapshot
 records every file's SHA-256, raw header, metadata records,
 reproduction URL, collection/version/variable, shape, actual date range, quality
 counts, unit evidence and temperature range. To create a new snapshot without
@@ -395,8 +412,9 @@ overwriting existing metadata:
 .venv/bin/python scripts/validate_regions.py --report /tmp/terrashift_inventory.json
 ```
 
-Current inspection: **12/12 valid files**, each with **312 monthly records** and
-**26 complete years**. No missing months, duplicate timestamps, malformed
+Current inspection: **12/12 valid files**, each with **321 monthly records**,
+**26 complete years**, and **nine months in incomplete 2026**. No missing months
+within January 2000–September 2026, duplicate timestamps, malformed
 records, invalid numeric values, fill occurrences, blanks or nonfinite
 temperatures were found. All share collection/version/variable and documented
 Kelvin units. All bounding boxes are empty and each URL has a distinct shape
@@ -405,6 +423,40 @@ user-confirmed, with no unresolved entries**. There is exactly one dataset per
 country, with distinct filenames, checksums and shapes, and no extra raw CSVs.
 Numerical validity and user confirmation do not constitute independent
 geographic verification.
+
+## Phase 5F availability and partial years
+
+All exports request data through **October 31, 2026**, while their actual last
+observation is **September 1, 2026**. This discrepancy is explicitly recorded in
+each registry entry and in the inventory. October is a requested but unavailable
+month, not a fabricated observation or a gap inside the audited January
+2000–September 2026 series. Its cause is not established by the export. Only this
+exact reviewed terminal shortage is accepted; unreviewed shortages, internal gaps,
+conflicting source metadata and changed shapes still fail validation.
+
+`load_data()` preserves the original request and reports `2026-10` in
+`loaded.missing_months`. `load_country()` separates missing months inside the
+reviewed observation interval from `unavailable_requested_months`. The audit and
+CLI print both concepts, and Methodology explains the request/availability
+difference in English and Spanish.
+
+Monthly charts and CSV exports retain all **321 observations**, including all
+nine months of 2026. Year filtering includes 2026. Coverage captions, sidebar
+source text and Methodology derive their date labels from actual loaded data,
+not from filenames or fixed terminal years.
+
+Annual aggregation retains the established equally weighted monthly arithmetic
+and `valid_months` / `is_complete` fields. Its 2026 row is an explicitly incomplete
+**partial-year summary**, not a full annual average. These audit/data-table/CSV
+rows remain available for traceability. Annual charts mask incomplete values so
+they do not display January–September means as annual points; gaps remain gaps.
+Annual OLS/HAC inputs, comparison rates and map colors use complete years only.
+For the full selected 2000–2026 interval, the fit uses **2000–2025**. Selecting only
+2026 displays nine monthly observations and an unavailable annual trend.
+Nothing is annualized, interpolated or inferred for October–December.
+
+See [the Phase 5F audit and implementation report](docs/phase_5f_dataset_update.md)
+for all 12 country results, source discrepancies, metadata history and checks.
 
 ## Statistical analysis
 
@@ -464,7 +516,7 @@ AI-generated explanations are implemented.
 Phase 2 tests are available in `tests/test_data.py`. Phase 3 synthetic and NASA
 pipeline tests are in `tests/test_trend_analysis.py`. Dashboard helper and
 Streamlit interaction tests are in `tests/test_dashboard.py`. Validation
-completed with **232 tests passing**, and all three scripts—`scripts/validate_data.py`,
+completed with **265 tests passing**, and all three scripts—`scripts/validate_data.py`,
 `scripts/analyze_trends.py`, and `scripts/validate_regions.py`—executed successfully. The raw CSV SHA-256 still
 matches the provenance record. Tests include full-period reference statistics,
 period filtering and recalculation, short and invalid ranges, incomplete years,
@@ -490,13 +542,19 @@ Phase 5D adds 59 tests in `tests/test_i18n.py` for the translation contract,
 country names, singular/plural forms, chart/map/table localization, unchanged
 scientific values, bilingual interpretations and errors, session isolation,
 selected-tab preservation, and language changes without data reload or inference.
+Phase 5F adds 33 tests in `tests/test_dataset_update.py` for all 12 revised
+checksums and source audits, requested-versus-observed coverage, partial 2026,
+complete-year charts/trends, map/comparison consistency, future extensions,
+bilingual startup and 2026 navigation. Existing historical-period reference
+statistics and statistical-method tests remain intact.
 `tests/test_app_imports.py` also imports the real application in a fresh Python
 process with an isolated bytecode cache, verifying chart module paths, imported
 function identities and call signatures. Unresolved application imports fail
 this check rather than being hidden by pytest's existing module cache.
 `scripts/validate_regions.py` reports 12 valid files, no unresolved countries,
-no country load errors, and returns exit code 0. Raw files and the original provenance
-are unchanged. The original Peru scripts still reproduce the previous trend.
+no country load errors, and returns exit code 0. Raw CSV contents are unchanged by this integration; original provenance fields
+are retained and previous metadata is archived. The active Peru scripts reproduce
+the same complete-year reference trend.
 
 The Streamlit AppTest executed the app and controls against the real registry
 without import or runtime errors. Additional tests verify registry-based filename

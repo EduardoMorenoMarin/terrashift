@@ -2,7 +2,7 @@
   "app.title": "TerraShift AI",
   "app.challenge": "PROYECTO DEL NASA SPACE APPS CHALLENGE",
   "app.heading": "Explora los cambios de temperatura en América del Sur",
-  "app.intro": "Explora la temperatura del aire en 12 países entre 2000 y 2025. Compara los registros de temperatura y las tasas de cambio estimadas con datos de NASA MERRA-2.",
+  "app.intro": "Explora la temperatura del aire en 12 países de América del Sur. Compara los registros de temperatura y las tasas de cambio estimadas con datos de NASA MERRA-2.",
   "app.footer": "TerraShift AI · Proyecto del NASA Space Apps Challenge · Datos: NASA MERRA-2",
   "sidebar.brand": "🌎 TerraShift AI",
   "sidebar.caption": "AMÉRICA DEL SUR · EXPLORADOR DE TEMPERATURA",
@@ -58,7 +58,7 @@
   "explore.temperature_Monthly": "Temperatura promedio mensual",
   "explore.monthly_caption": "Los valores mensuales muestran el ciclo estacional. Las tendencias se estiman con promedios anuales.",
   "explore.annual_caption": "Los puntos muestran los promedios anuales. La línea discontinua, cuando está visible, resume la tendencia lineal.",
-  "explore.incomplete": "Los años con meses faltantes aparecen en la tabla de datos, pero se excluyen de la estimación de la tendencia.",
+  "explore.incomplete": "Las filas marcadas como incompletas son resúmenes de años parciales, no promedios anuales completos. Se excluyen de los gráficos anuales y de las tendencias; las observaciones mensuales siguen disponibles.",
   "explore.meaning": "¿Qué significan estos resultados?",
   "explore.no_trend": "Se muestran los datos de temperatura del período seleccionado. Selecciona un intervalo más largo para estimar una tendencia.",
   "explore.diagnostics": "Datos y diagnósticos",
@@ -158,7 +158,7 @@
   "term.uncertainty": "Incertidumbre",
   "term.reanalysis": "Datos de reanálisis",
   "app.page_title": "TerraShift AI | Tendencias de temperatura en América del Sur",
-  "sidebar.source": "**NASA MERRA-2**  \nTemperatura del aire a 2 metros  \nDatos mensuales · 2000–2025",
+  "sidebar.source": "**NASA MERRA-2**  \nTemperatura del aire a 2 metros  \nDatos mensuales: {first}–{last}  \nAños completos: {annual}",
   "methodology.about_text": "\nTerraShift AI es un proyecto del NASA Space Apps Challenge que utiliza datos de\n**NASA MERRA-2** distribuidos a través de Giovanni. Explora la temperatura\npromedio del aire a 2 metros sobre la superficie en 12 países de América del Sur.\n\nMERRA-2 es un **reanálisis**: combina observaciones meteorológicas con un modelo\nfísico para estimar condiciones del pasado. Estos promedios por país describen\npatrones regionales, no lecturas de termómetros individuales ni extremos locales.\n",
   "methodology.pipeline_text": "\nLas temperaturas se convierten de Kelvin a Celsius. Los promedios anuales dan\nel mismo peso a cada mes; un año necesita sus 12 valores mensuales para entrar\nen el análisis de tendencias. Se conservan los registros disponibles sin\ninterpolación ni eliminación de valores atípicos.\n\nUna regresión lineal estima la tasa de cambio en **°C por década**.\nEl intervalo de confianza del 95% describe la incertidumbre de esa tasa.\nEl método de Newey–West, también llamado HAC, ajusta la incertidumbre por la\ndependencia entre años y los cambios en la variabilidad. Es una aproximación,\nespecialmente en registros cortos.\n",
   "methodology.reading_text": "\nUn valor p de la tendencia inferior a **0.05** indica evidencia estadística de\nun cambio bajo los supuestos del análisis. Un intervalo que incluye cero deja\nincierta la dirección; no significa que las temperaturas se hayan mantenido\niguales. Un valor p pequeño dice poco sobre la importancia práctica del cambio\no sus causas.\n\nLos niveles de temperatura y las tasas de calentamiento responden a preguntas\ndiferentes. Los países tienen distintos climas, altitudes y características\ngeográficas, por lo que un país más cálido no necesariamente se está calentando\nmás rápido. Las tendencias se estiman por separado para cada país. Las diferencias\nentre países deben interpretarse con cautela: las pruebas individuales de\ntendencia no establecen que sus tasas difieran estadísticamente.\n\nLos promedios por país pueden ocultar cambios locales y estacionales. El período\nseleccionado, la variabilidad natural y la duración del registro afectan las\nestimaciones. Estos resultados describen cambios de temperatura, no sus causas.\n",
@@ -240,5 +240,10 @@
   "plotly.isolate": "Haz doble clic en la leyenda para mostrar solo una serie",
   "plotly.download_generic": "Descargar gráfico",
   "plotly.reset": "Restablecer",
-  "plotly.reset_views": "Restablecer vistas"
+  "plotly.reset_views": "Restablecer vistas",
+  "coverage.summary": "Observaciones mensuales: {first}–{last}. Cobertura anual completa: {annual}. Los años incompletos se excluyen de los gráficos anuales y de las tendencias OLS/HAC.",
+  "coverage.request_gap": "La exportación solicitó datos hasta {requested}, pero las observaciones solo están disponibles hasta {last}. No se infieren observaciones posteriores.",
+  "coverage.trend_period": "Período seleccionado: {start}–{end}. El análisis de tendencia anual utiliza los años completos {fit_start}–{fit_end}.",
+  "notice.partial_year": "Los años incompletos se excluyen; las tendencias utilizan únicamente años calendario completos.",
+  "compare.annual_complete": "Los gráficos de temperatura anual y las comparaciones de tasas de calentamiento utilizan solo años completos. Las observaciones de años parciales siguen disponibles en la vista Mensual."
 }

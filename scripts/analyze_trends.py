@@ -9,10 +9,10 @@ import sys
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from core.data_loader import load_data, resolve_original_source
+from core.data_loader import load_data, resolve_reference_source
 from core.data_cleaning import clean_monthly, annual_mean_temperatures, annual_trend_ready
 from core.trend_analysis import analyze_annual_trend
-from core.region_data import geographic_identifiers, read_country_mapping
+from core.region_data import geographic_identifiers, read_country_mapping, validate_dataset
 
 
 def _format_optional(value, precision=4):
@@ -31,18 +31,21 @@ def _print_inference(label, inference):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("path", nargs="?", type=Path, help="NASA Giovanni CSV; otherwise resolve the original Peru checksum")
+    parser.add_argument("path", nargs="?", type=Path, help="NASA Giovanni CSV; otherwise load the active Peru release through the registry")
     parser.add_argument("--hac-lags", type=int, default=None, help="Override automatic Newey–West bandwidth")
     args = parser.parse_args()
     try:
         provenance = json.loads((ROOT / "metadata/dataset_provenance.json").read_text())
-        loaded = load_data(args.path if args.path is not None else resolve_original_source())
+        loaded = load_data(args.path if args.path is not None else resolve_reference_source())
+        registry = read_country_mapping()
+        checksum = hashlib.sha256(loaded.source.read_bytes()).hexdigest()
+        matches = [entry for entry in registry.values() if entry["sha256"] == checksum]
+        coverage = matches[0].get("coverage") if matches else None
+        validate_dataset(loaded, coverage=coverage)
         monthly = clean_monthly(loaded.observations)
         annual = annual_mean_temperatures(monthly)
         complete = annual_trend_ready(annual)
         result = analyze_annual_trend(complete, hac_lags=args.hac_lags)
-        registry = read_country_mapping()
-        checksum = hashlib.sha256(loaded.source.read_bytes()).hexdigest()
     except (ValueError, OSError) as exc:
         parser.exit(1, f"Analysis failed: {exc}\n")
     print(f"Source: {provenance['source']}; {provenance['collection']} v{provenance['version']}; {provenance['variable']}")
@@ -59,7 +62,10 @@ def main():
     print("The CSV does not independently verify the shape's country identity.")
     print(f"Analysis period: {result.years[0]}–{result.years[-1]}")
     print(f"Annual observations: {len(result.years)}; incomplete years excluded: {len(annual) - len(complete)}")
-    print(f"Missing calendar months in requested coverage: {len(loaded.missing_months)}")
+    print(f"Monthly observation coverage: {loaded.observations.date.min():%Y-%m}–{loaded.observations.date.max():%Y-%m}; {len(loaded.observations)} observations")
+    print(f"Missing months within reviewed observation coverage: {len(set(loaded.missing_months) - set((coverage or {}).get('unavailable_requested_months', [])))}")
+    if loaded.missing_months:
+        print("Requested but unavailable months (explicitly reviewed): " + ", ".join(loaded.missing_months))
     print("Annual means give equal weight to each of 12 valid monthly observations.")
     print(f"First annual mean ({result.years[0]}): {result.temperatures_c[0]:.6f} C")
     print(f"Last annual mean ({result.years[-1]}): {result.temperatures_c[-1]:.6f} C")

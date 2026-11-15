@@ -52,7 +52,7 @@ def comparison_table(periods: dict[str, DashboardPeriod], *, lang: str = "en") -
     rows = []
     for country, period in periods.items():
         result = period.trend
-        years = result.years if result else tuple(period.annual.year)
+        years = result.years if result else tuple(period.complete_annual.year)
         interval = result.hac.confidence_interval_per_decade if result else None
         significant = result.hac.significant if result else None
         rows.append({

@@ -10,7 +10,7 @@ import pandas as pd
 import pytest
 from streamlit.testing.v1 import AppTest
 
-from core.data_loader import load_data, resolve_original_source
+from core.data_loader import load_data, resolve_reference_source
 from core.data_cleaning import clean_monthly
 from core.dashboard_data import prepare_period, processed_csv, interpret_trend
 from core.dashboard_charts import temperature_figure
@@ -21,7 +21,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 @pytest.fixture
 def monthly():
-    return clean_monthly(load_data(resolve_original_source()).observations)
+    return clean_monthly(load_data(resolve_reference_source()).observations)
 
 
 def test_full_period_reference_results(monthly):
@@ -167,7 +167,7 @@ def test_dashboard_resolves_registry_filename_after_rename(tmp_path):
     peru = next(entry for entry in registry["countries"] if entry["country"] == "Peru")
     peru["filename"] = "renamed-peru.csv"
     (tmp_path / "metadata/country_mapping.json").write_text(json.dumps(registry))
-    shutil.copyfile(resolve_original_source(), tmp_path / "data/raw/renamed-peru.csv")
+    shutil.copyfile(resolve_reference_source(), tmp_path / "data/raw/renamed-peru.csv")
     # No legacy dataset_provenance.json or hardcoded NASA filename is present.
     app = AppTest.from_file(str(tmp_path / "app.py"), default_timeout=30).run()
     assert not app.exception

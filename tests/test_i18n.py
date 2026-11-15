@@ -438,6 +438,7 @@ def test_short_invalid_and_empty_comparison_runtime(lang):
     app = new_app(lang).run()
     assert any(element.value == t('compare.empty',lang) for element in app.info)
     app.selectbox(key='start_year').set_value(2025)
+    app.selectbox(key='end_year').set_value(2025)
     app.multiselect(key='compare_countries').set_value(['Peru','Brazil'])
     app.run()
     assert not app.exception and not app.error

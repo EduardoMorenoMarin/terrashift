@@ -41,6 +41,14 @@ def prepare_period(monthly: pd.DataFrame, start_year: int, end_year: int) -> Das
     return DashboardPeriod(selected, annual, complete, trend, None)
 
 
+def annual_chart_data(period: DashboardPeriod) -> pd.DataFrame:
+    """Keep missing-year gaps, but never plot partial means as annual averages."""
+    table = period.annual.copy()
+    for column in ("temperature_k", "temperature_c"):
+        table[column] = table[column].where(table.is_complete)
+    return table
+
+
 def processed_csv(period: DashboardPeriod, frequency: str) -> bytes:
     """Export selected processed data, including incomplete annual summaries."""
     if frequency not in ("Annual", "Monthly"):

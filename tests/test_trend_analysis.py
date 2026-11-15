@@ -7,7 +7,7 @@ import pandas as pd
 import pytest
 from scipy import stats
 
-from core.data_loader import load_data, resolve_original_source
+from core.data_loader import load_data, resolve_reference_source
 from core.data_cleaning import clean_monthly, annual_mean_temperatures, annual_trend_ready
 from core.trend_analysis import analyze_annual_trend, newey_west_covariance, select_hac_lags
 
@@ -165,7 +165,7 @@ def test_outlier_flags_do_not_remove_observations():
 
 
 def test_nasa_pipeline_integration():
-    loaded = load_data(resolve_original_source())
+    loaded = load_data(resolve_reference_source())
     before = hashlib.sha256(loaded.source.read_bytes()).hexdigest()
     complete = annual_trend_ready(annual_mean_temperatures(clean_monthly(loaded.observations)))
     result = analyze_annual_trend(complete)

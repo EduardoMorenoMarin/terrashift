@@ -27,6 +27,12 @@ def resolve_original_source(directory: str | Path = RAW_DIRECTORY) -> Path:
     return matches[0].resolve()
 
 
+def resolve_reference_source() -> Path:
+    """Resolve the active Peru release through its reviewed registry, not history."""
+    from core.region_data import load_country
+    return load_country("Peru").source
+
+
 @dataclass
 class LoadedDataset:
     observations: pd.DataFrame

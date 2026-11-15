@@ -15,7 +15,7 @@ from core.country_comparison import (available_countries, country_colors, prepar
 from core.map_data import load_map_data
 from core.map_charts import country_trend_figure
 from core.i18n import t, country_name, plural, LANGUAGES
-from core.dashboard_copy import localize_table, localize_notice, chart_config
+from core.dashboard_copy import localize_table, localize_notice, chart_config, coverage_labels, source_request_notice
 from core.dashboard_state import begin_presentation, analysis_value, localized_tabs
 
 ROOT = Path(__file__).resolve().parent
@@ -68,6 +68,8 @@ def render_explore(dataset, country, start, end, frequency, show_trend, color, l
     if period.analysis_notice:
         st.info(localize_notice(period.analysis_notice, lang))
     if result is not None:
+        st.caption(tr('coverage.trend_period', start=start, end=end,
+                      fit_start=result.years[0], fit_end=result.years[-1]))
         a, b, c = st.columns(3)
         a.metric(tr('metric.trend'), f"{result.slope_per_decade:+.3f} {tr('unit.trend')}",
                  help=tr('metric.trend_help'))
@@ -138,9 +140,13 @@ def render_explore(dataset, country, start, end, frequency, show_trend, color, l
         st.caption(tr('explore.download_caption'))
 
 
-def render_methodology(registry_path, lang="en"):
+def render_methodology(registry_path, lang="en", dataset=None):
     tr = partial(t, lang=lang)
     st.subheader(tr('methodology.about'))
+    if dataset is not None:
+        st.caption(tr('coverage.summary', **coverage_labels(dataset, lang)))
+        if source_request_notice(dataset, lang):
+            st.caption(source_request_notice(dataset, lang))
     st.markdown(tr('methodology.about_text'))
     st.subheader(tr('methodology.pipeline'))
     st.markdown(tr('methodology.pipeline_text'))
@@ -173,6 +179,8 @@ def render_compare(selected, start, end, frequency, colors, lang="en"):
         st.error(tr('error.comparison'))
         return
     st.subheader(tr("compare.temperature_" + frequency))
+    if any(len(period.annual) != len(period.complete_annual) for period in periods.values()):
+        st.caption(tr('compare.annual_complete'))
     st.plotly_chart(comparison_temperature_figure(periods, frequency, colors, lang=lang),
                    width="stretch", config=chart_config(lang), key="comparison_temperatures")
     st.caption(tr('compare.levels'))
@@ -238,6 +246,7 @@ def main():
         st.error(tr("error.country", country=country_name(country, lang)))
         st.info(tr('error.country_retry'))
         st.stop()
+    st.caption(tr("coverage.summary", **coverage_labels(dataset, lang)))
     years = sorted(int(year) for year in dataset.monthly.date.dt.year.unique())
     with st.sidebar:
         st.subheader(tr('sidebar.period'))
@@ -249,7 +258,7 @@ def main():
                                disabled=frequency == "Monthly", key="show_trend")
         st.caption(tr('sidebar.scope'))
         st.divider()
-        st.markdown(tr('sidebar.source'))
+        st.markdown(tr('sidebar.source', **coverage_labels(dataset, lang)))
     st.divider()
     if start > end:
         st.warning(tr('error.period'))
@@ -261,7 +270,7 @@ def main():
     with compare:
         render_compare(selected, start, end, frequency, colors, lang=lang)
     with methodology:
-        render_methodology(registry_path, lang=lang)
+        render_methodology(registry_path, lang=lang, dataset=dataset)
     st.divider()
     st.caption(tr('app.footer'))
 

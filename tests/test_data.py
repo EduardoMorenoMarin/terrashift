@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from core.data_loader import load_data, resolve_original_source
+from core.data_loader import load_data, resolve_reference_source
 from core.data_cleaning import (
     kelvin_to_celsius, clean_monthly, annual_mean_temperatures, annual_trend_ready,
 )
@@ -31,21 +31,23 @@ def export(tmp_path):
 
 def test_real_csv():
     provenance = json.loads((ROOT / "metadata/dataset_provenance.json").read_text())
-    path = resolve_original_source()
+    path = resolve_reference_source()
     before = hashlib.sha256(path.read_bytes()).hexdigest()
     loaded = load_data(path)
-    assert before == provenance["original_csv_sha256"]
-    assert len(loaded.observations) == 312
-    assert loaded.missing_months == ()
+    assert before == provenance["current_dataset"]["sha256"]
+    assert len(loaded.observations) == 321
+    assert loaded.missing_months == ("2026-10",)
     assert loaded.observations.date.min() == pd.Timestamp("2000-01-01")
-    assert loaded.observations.date.max() == pd.Timestamp("2025-12-01")
+    assert loaded.observations.date.max() == pd.Timestamp("2026-09-01")
     assert loaded.observations.temperature_k.isna().sum() == 0
     assert loaded.observations.temperature_k.min() == pytest.approx(290.695038)
     with pytest.raises(ValueError, match="Supply a path"):
         load_data()  # Multiple exports must not silently default to a country.
     annual = annual_mean_temperatures(clean_monthly(loaded.observations))
     assert len(annual_trend_ready(annual)) == 26
-    assert annual.valid_months.eq(12).all()
+    assert annual.loc[annual.is_complete, "valid_months"].eq(12).all()
+    assert annual.iloc[-1].year == 2026 and annual.iloc[-1].valid_months == 9
+    assert not annual.iloc[-1].is_complete
     assert hashlib.sha256(path.read_bytes()).hexdigest() == before
 
 

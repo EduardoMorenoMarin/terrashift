@@ -10,7 +10,7 @@ import pandas as pd
 import pytest
 
 from core import region_data
-from core.data_loader import load_data, resolve_original_source
+from core.data_loader import load_data, resolve_original_source, resolve_reference_source
 from core.data_cleaning import clean_monthly, annual_mean_temperatures, annual_trend_ready
 from core.dataset_audit import inspect_dataset
 from core.region_data import COUNTRIES, load_country, read_country_mapping, RegionDataError
@@ -206,29 +206,32 @@ def test_real_inventory_and_existing_peru_provenance():
     assert set(mappings) == set(COUNTRIES)
     for entry in mappings.values():
         source = ROOT / "data/raw" / entry["filename"]
-        report = inspect_dataset(source)
+        report = inspect_dataset(source, coverage=entry["coverage"])
         assert report["sha256"] == entry["sha256"]
         assert report["data_status"] == "VALID"
-        assert report["monthly_observations"] == 312
+        assert report["monthly_observations"] == 321
         assert not report["missing_months"]
         assert report["complete_years"] == 26
         assert report["shape_identifier"] == entry["shape_identifier"]
     peru = load_country("Peru")
     old = json.loads((ROOT / "metadata/dataset_provenance.json").read_text())
-    assert peru.sha256 == old["original_csv_sha256"]
-    assert peru.source == resolve_original_source()
+    assert peru.sha256 == old["current_dataset"]["sha256"]
+    assert peru.source == resolve_reference_source()
     assert peru.provenance["csv_independently_verifies_country_identity"] is False
 
 
 def test_legacy_resolver_refuses_absent_or_ambiguous_checksum(tmp_path):
     with pytest.raises(ValueError, match="found 0"):
         resolve_original_source(tmp_path)
-    raw = resolve_original_source().read_bytes()
-    (tmp_path / "one.csv").write_bytes(raw)
-    assert resolve_original_source(tmp_path).name == "one.csv"
-    (tmp_path / "two.csv").write_bytes(raw)
-    with pytest.raises(ValueError, match="found 2"):
-        resolve_original_source(tmp_path)
+    # Historical bytes were replaced, so exercise legacy checksum matching with
+    # an explicitly synthetic historical fixture rather than calling new bytes old.
+    raw = b"synthetic historical export"
+    with patch("core.data_loader.json.loads", return_value={"original_csv_sha256": hashlib.sha256(raw).hexdigest()}):
+        (tmp_path / "one.csv").write_bytes(raw)
+        assert resolve_original_source(tmp_path).name == "one.csv"
+        (tmp_path / "two.csv").write_bytes(raw)
+        with pytest.raises(ValueError, match="found 2"):
+            resolve_original_source(tmp_path)
 
 
 def test_validator_displays_unresolved_without_assigning_country(countries, monkeypatch, capsys):
@@ -290,4 +293,4 @@ def test_all_real_country_mappings_are_confirmed_and_one_to_one():
         assert entry["filename"].endswith(f"_{entry['filename_suffix']}.csv")
         dataset = load_country(country)
         assert dataset.monthly.country.eq(country).all()
-        assert len(dataset.monthly) == 312 and len(dataset.complete_annual) == 26
+        assert len(dataset.monthly) == 321 and len(dataset.complete_annual) == 26

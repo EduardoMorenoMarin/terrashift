@@ -2,7 +2,7 @@
 
 import plotly.graph_objects as go
 
-from core.dashboard_data import DashboardPeriod
+from core.dashboard_data import DashboardPeriod, annual_chart_data
 from core.i18n import t, country_name, month_labels
 from core.region_data import COUNTRIES
 
@@ -19,8 +19,9 @@ def temperature_figure(period: DashboardPeriod, frequency: str, show_trend: bool
         raise ValueError("Frequency must be Annual or Monthly.")
     figure = go.Figure()
     if frequency == "Annual":
+        annual = annual_chart_data(period)
         figure.add_trace(go.Scatter(
-            x=period.annual.year.tolist(), y=period.annual.temperature_c.tolist(),
+            x=annual.year.tolist(), y=annual.temperature_c.tolist(),
             name=t("chart.annual", lang), mode="lines+markers",
             line=dict(color=color, width=3), marker=dict(size=8),
             customdata=[[int(row.valid_months), t("common.yes" if row.is_complete else "common.no", lang)]
@@ -65,7 +66,7 @@ def comparison_temperature_figure(periods: dict[str, DashboardPeriod], frequency
         raise ValueError("Frequency must be Annual or Monthly.")
     figure = go.Figure()
     for country, period in periods.items():
-        table = period.annual if frequency == "Annual" else period.monthly
+        table = annual_chart_data(period) if frequency == "Annual" else period.monthly
         x = table.year.tolist() if frequency == "Annual" else table.date.tolist()
         date_format = "%{x:.0f}" if frequency == "Annual" else "%{customdata[0]}"
         figure.add_trace(go.Scatter(

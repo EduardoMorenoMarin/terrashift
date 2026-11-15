@@ -23,7 +23,9 @@ def main() -> int:
         mappings = read_country_mapping(args.mapping)
     except ValueError as exc:
         parser.exit(1, f"Invalid country mapping: {exc}\n")
-    reports = [inspect_dataset(path) for path in sorted(args.raw_directory.glob("*.csv"))]
+    by_filename = {entry["filename"]: entry for entry in mappings.values()}
+    reports = [inspect_dataset(path, coverage=by_filename.get(path.name, {}).get("coverage"))
+               for path in sorted(args.raw_directory.glob("*.csv"))]
     by_name = {item["filename"]: item for item in reports}
     rows, errors, pending = [], 0, 0
     for country in COUNTRIES:
@@ -69,6 +71,15 @@ def main() -> int:
               f"duplicate timestamps={report['duplicate_timestamps']}; malformed={report['malformed_records']}; "
               f"invalid dates={report['invalid_timestamps']}; invalid numeric={report['invalid_numeric_values']}; "
               f"fill={report['fill_values']}; blank={report['blank_temperatures']}; nonfinite={report['nonfinite_temperatures']}")
+        for warning in report.get("warnings", []):
+            print(f"COVERAGE NOTE {report['filename']}: {warning}")
+    coverage_signatures = {(report["first_date"], report["last_date"], report["monthly_observations"])
+                           for report in reports if report["data_status"] != "INVALID"}
+    if len(coverage_signatures) > 1:
+        print("INVALID: inconsistent observation coverage across countries.")
+        errors += 1
+    unmapped = sum(report["filename"] not in assigned for report in reports)
+    errors += unmapped
     valid = sum(r["data_status"] != "INVALID" for r in reports)
     print(f"\nCSV data validity: {valid}/{len(reports)} valid. Unresolved countries: {pending}. Country load errors: {errors}.")
     print("Provenance status distinguishes user_confirmed selections from independent verification; shape IDs and global filename bounds do not independently identify countries.")
